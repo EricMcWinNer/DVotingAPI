@@ -7,8 +7,12 @@ use Illuminate\Http\Request;
 class DashboardController extends Controller
 {
     //
-    public function home(Request $request)
+
+    public function getUser(Request $request)
     {
-        return response($request->user());
+        return response([
+            "isSessionValid" => "true",
+            "user" => $request->user()
+        ]);
     }
 }

@@ -22,29 +22,23 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('/states/', 'StateController@states')
-    ->middleware('cors');
+Route::get('/states/', 'StateController@states');
 
-Route::get('/state/{id}/lgas/', 'StateController@lgas')
-    ->middleware('cors');
+Route::get('/state/{id}/lgas/', 'StateController@lgas');
 
 Route::post('/official/register', 'UserController@registerOfficial')
-    ->middleware('cors', 'ORValidation');
+    ->middleware('ORValidation');
 
-Route::get('/pins/create/{count}', 'RegistrationPinController@makePins')
-    ->middleware('cors');
+Route::get('/pins/create/{count}', 'RegistrationPinController@makePins');
 
-Route::get('/dashboard', 'DashboardController@home')
-    ->middleware('cors', 'auth.once')->name('DashboardHome');
+Route::post('/login', 'AuthenticationController@authenticate');
 
-Route::post('/login', 'AuthenticationController@authenticate')
-    ->middleware('cors');
+Route::get('/validate-web-app-session', 'AuthenticationController@validateWebAppCookie');
 
-Route::get('/validate-web-app-session', 'AuthenticationController@validateWebAppCookie')
-    ->middleware('cors');
+Route::get('/logout', 'AuthenticationController@logoutWebApp');
 
-Route::get('/logout', 'AuthenticationController@logoutWebApp')
-    ->middleware('cors');
+Route::get('/dashboard/user', 'DashboardController@getUser')
+    ->middleware('auth.web')->name('DashboardUser');
 
 
 

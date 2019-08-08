@@ -19,6 +19,7 @@ class Kernel extends HttpKernel
         \App\Http\Middleware\TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
         \App\Http\Middleware\TrustProxies::class,
+        \Spatie\Cors\Cors::class
     ];
 
     /**
@@ -62,7 +63,7 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'cors' => \App\Http\Middleware\CORS::class,
         'ORValidation' => \App\Http\Middleware\OfficialRegistrationValidation::class,
-        'auth.once' => \App\Http\Middleware\AuthenticateOnce::class,
+        'auth.web' => \App\Http\Middleware\AuthenticateOnce::class,
     ];
 
     /**

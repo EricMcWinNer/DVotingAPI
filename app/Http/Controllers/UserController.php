@@ -50,5 +50,6 @@ class UserController extends Controller
         $registrationPin->date_used = Carbon::now()->toDateTimeString();
         $registrationPin->save();
         $user->save();
+        return response(["status" => "success"]);
     }
 }
