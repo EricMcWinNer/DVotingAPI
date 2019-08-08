@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use Carbon\Carbon;
 use Closure;
 
 class OfficialRegistrationValidation
@@ -49,8 +50,10 @@ class OfficialRegistrationValidation
             return response(["isValid" => false, "field" => "Profile picture"]);
         else if (!$request->file('picture')->isValid())
             return response(["isValid" => false, "field" => "Profile picture"]);
-        if (!substr($request->file('picture')->getMimeType(), 0, 5) == 'image')
+        else if (!substr($request->file('picture')->getMimeType(), 0, 5) == 'image')
             return response(["isValid" => false, "field" => "Profile picture"]);
+        else if (Carbon::parse($fields["dob"])->age < 18)
+            return response(["isValid" => false, "field" => "tooYoung"]);
         else
             return $next($request);
     }
