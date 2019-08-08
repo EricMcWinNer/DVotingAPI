@@ -20,7 +20,7 @@ return [
         'allow_credentials' => true,
 
         'allow_origins' => [
-            'http://127.0.0.1:3000',
+            env('FRONTEND_ENDPOINT'),
         ],
 
         'allow_methods' => [
