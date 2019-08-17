@@ -88,20 +88,20 @@ class AuthenticationController extends Controller
                 ];
                 if (time() < $decodedArray['exp'])
                     if (Auth::loginUsingId($decodedArray['user_id']))
-                        return response(["isValid" => "true"]);
+                        return response(["isSessionValid" => "true"]);
                     else
-                        return response(["isValid" => "false"]);
+                        return response(["isSessionValid" => "false"]);
                 else
-                    return response(["isValid" => "false"]);
+                    return response(["isSessionValid" => "false"]);
             } catch (ExpiredException $e) {
-                return response(["isValid" => "false"]);
+                return response(["isSessionValid" => "false"]);
             } catch (SignatureInvalidException $e) {
-                return response(["isValid" => "false"]);
+                return response(["isSessionValid" => "false"]);
             } catch (\Exception $e) {
-                return response(["isValid" => "false"]);
+                return response(["isSessionValid" => "false"]);
             }
         } else
-            return response(["isValid" => "false"]);
+            return response(["isSessionValid" => "false"]);
     }
 
     public function logoutWebApp(Request $request)
