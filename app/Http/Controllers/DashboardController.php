@@ -12,7 +12,16 @@ class DashboardController extends Controller
     {
         return response([
             "isSessionValid" => "true",
-            "user" => $request->user()
+            "user" => $request->user(),
+        ]);
+    }
+
+    public function initializeHomePage(Request $request)
+    {
+        $electionInfo = app(ElectionController::class)->getCurrentElectionMinimalInfo();
+        return response([
+            "isSessionValid" => "true",
+            "election" => $electionInfo,
         ]);
     }
 }

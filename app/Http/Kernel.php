@@ -64,6 +64,7 @@ class Kernel extends HttpKernel
         'cors' => \App\Http\Middleware\CORS::class,
         'ORValidation' => \App\Http\Middleware\OfficialRegistrationValidation::class,
         'auth.web' => \App\Http\Middleware\AuthenticateOnce::class,
+        'eValidate' => \App\Http\Middleware\ElectionValidation::class,
     ];
 
     /**

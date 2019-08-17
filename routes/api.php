@@ -31,6 +31,8 @@ Route::post('/official/register', 'UserController@registerOfficial')
 
 Route::get('/pins/create/{count}', 'RegistrationPinController@makePins');
 
+Route::get('election/create', 'ElectionController@autoGenerate');
+
 Route::post('/login', 'AuthenticationController@authenticate');
 
 Route::get('/validate-web-app-session', 'AuthenticationController@validateWebAppCookie');
@@ -40,5 +42,17 @@ Route::get('/logout', 'AuthenticationController@logoutWebApp');
 Route::get('/dashboard/user', 'DashboardController@getUser')
     ->middleware('auth.web')->name('DashboardUser');
 
+Route::get('/dashboard/home', 'DashboardController@initializeHomePage')
+    ->middleware('auth.web');
 
+Route::get('/dashboard/election', 'ElectionController@getElection')
+    ->middleware('auth.web');
 
+Route::post('/dashboard/election', 'ElectionController@create')
+    ->middleware('auth.web', 'eValidate');
+
+Route::delete('/dashboard/election', 'ElectionController@delete')
+    ->middleware('auth.web');
+
+Route::post('/dashboard/election/edit', 'ElectionController@edit')
+    ->middleware('auth.web', 'eValidate');
