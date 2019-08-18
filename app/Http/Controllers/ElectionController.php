@@ -86,7 +86,7 @@ class ElectionController extends Controller
             ->orderBy('id', 'desc')
             ->first();
         if (is_null($election))
-            $electionArray = "";
+            $electionArray = null;
         else
             $electionArray = [
                 "start_date" => Carbon::parse($election->start_date)->setTimeZone("+01:00")->toDayDateTimeString(),
@@ -140,6 +140,20 @@ class ElectionController extends Controller
             }
         } catch (\Exception $e) {
             return response(["completed" => false, "message" => $e->getMessage()]);
+        }
+    }
+
+    public function finalize(Request $request)
+    {
+        if ($this->electionExists()) {
+            $currentElection = Election::where('status', 'completed')
+                ->orderBy('id', 'desc')
+                ->first();
+            $currentElection->status = 'finalized';
+            $currentElection->save();
+            return response(["completed" => true]);
+        } else {
+            return response(["exists" => false]);
         }
     }
 }

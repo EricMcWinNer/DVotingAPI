@@ -56,3 +56,24 @@ Route::delete('/dashboard/election', 'ElectionController@delete')
 
 Route::post('/dashboard/election/edit', 'ElectionController@edit')
     ->middleware('auth.web', 'eValidate');
+
+Route::get('/dashboard/election/finalize', 'ElectionController@finalize')
+    ->middleware('auth.web');
+
+Route::post('/dashboard/party', 'PartyController@create')
+    ->middleware('auth.web', 'pValidate');
+
+Route::get('/dashboard/party/all', 'PartyController@getParties')
+    ->middleware('auth.web');
+
+Route::get('/dashboard/party/{id}', 'PartyController@getParty')
+    ->where('id', '[0-9]+')
+    ->middleware('auth.web');
+
+Route::delete('/dashboard/party/{id}', 'PartyController@deleteParty')
+    ->where('id', '[0-9]+')
+    ->middleware('auth.web');
+
+Route::post('/dashboard/party/{id}/edit', 'PartyController@updateParty')
+    ->where('id', '[0-9]+')
+    ->middleware('auth.web', 'pValidate');

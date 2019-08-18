@@ -65,6 +65,7 @@ class Kernel extends HttpKernel
         'ORValidation' => \App\Http\Middleware\OfficialRegistrationValidation::class,
         'auth.web' => \App\Http\Middleware\AuthenticateOnce::class,
         'eValidate' => \App\Http\Middleware\ElectionValidation::class,
+        'pValidate' => \App\Http\Middleware\PartyValidator::class,
     ];
 
     /**
