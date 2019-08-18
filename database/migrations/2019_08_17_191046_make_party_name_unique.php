@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class EditPartiesTableAddAccronym extends Migration
+class MakePartyNameUnique extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +14,7 @@ class EditPartiesTableAddAccronym extends Migration
     public function up()
     {
         Schema::table('parties', function (Blueprint $table) {
-            $table->string("acronym", 6);
+            $table->string("name")->unique()->change();
         });
     }
 
@@ -26,7 +26,7 @@ class EditPartiesTableAddAccronym extends Migration
     public function down()
     {
         Schema::table('parties', function (Blueprint $table) {
-            $table->dropColumn("acronym");
+            $table->dropUnique('name');
         });
     }
 }
