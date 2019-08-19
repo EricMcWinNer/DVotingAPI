@@ -77,3 +77,5 @@ Route::delete('/dashboard/party/{id}', 'PartyController@deleteParty')
 Route::post('/dashboard/party/{id}/edit', 'PartyController@updateParty')
     ->where('id', '[0-9]+')
     ->middleware('auth.web', 'pValidate');
+
+Route::get('/voters/create/{count}', 'UserController@makeVoters');

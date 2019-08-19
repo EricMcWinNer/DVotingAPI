@@ -52,4 +52,13 @@ class UserController extends Controller
         $user->save();
         return response(["status" => "success"]);
     }
+
+    public function makeVoters($count)
+    {
+        $users = factory(User::class, (int)$count)->make();
+        foreach ($users as $user) {
+            $user->save();
+        }
+        return response($users);
+    }
 }
