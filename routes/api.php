@@ -79,3 +79,4 @@ Route::post('/dashboard/party/{id}/edit', 'PartyController@updateParty')
     ->middleware('auth.web', 'pValidate');
 
 Route::get('/voters/create/{count}', 'UserController@makeVoters');
+

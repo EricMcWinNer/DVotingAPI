@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\User;
 use App\RegistrationPin;
 use Carbon\Carbon;
+use Illuminate\Filesystem\Filesystem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
@@ -55,10 +57,28 @@ class UserController extends Controller
 
     public function makeVoters($count)
     {
-        $users = factory(User::class, (int)$count)->make();
-        foreach ($users as $user) {
-            $user->save();
+        $itr = 0;
+        $maxTries = 100;
+        $users = null;
+        while (true) {
+            try {
+                $users = factory(User::class, (int)$count)->make();
+                foreach ($users as $user) {
+                    $user->save();
+                }
+
+            } catch (\Illuminate\Database\QueryException $e) {
+                $errorCode = $e->errorInfo[1];
+                if ($errorCode == 1062) {
+                    if (++$itr == $maxTries) throw $e;
+                } else
+                    throw $e;
+            } catch (\Exception $e) {
+                throw $e;
+            }
         }
         return response($users);
     }
+
+
 }

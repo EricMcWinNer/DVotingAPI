@@ -35,7 +35,7 @@ $factory->define(User::class, function (Faker $faker) {
         'phone_number' => $faker->phoneNumber,
         "marital_status" => $maritalStatus[random_int(0, 3)],
         "occupation" => $faker->jobTitle,
-        "picture" => "profile-picture/" . random_int(1, 10) . ".jpg",
+        "picture" => "profile-picture/" . random_int(1, 800) . ".jpg",
         'roles' => json_encode(["voter"]),
         'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
         'remember_token' => Str::random(10),
