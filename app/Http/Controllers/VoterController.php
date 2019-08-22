@@ -93,6 +93,13 @@ class VoterController extends Controller
         $state = State::find($lga->state_id);
         $voter->state = $state->name;
         $voter->lga = $lga->name;
+        $voter->age = [
+            "dob_string" => Carbon::parse($voter->dob)
+                                  ->format('jS M, Y'),
+            "age"        => Carbon::parse($voter->dob)->age
+        ];
+        $voter->date_created = Carbon::parse($voter->created_at)
+                                     ->format('jS M, Y');
         return response(["voter" => $voter]);
     }
 
