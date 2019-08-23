@@ -18,11 +18,20 @@ use Illuminate\Support\Facades\Storage;
 |
 */
 
-Route::middleware('auth:api')
-     ->get('/user', function (Request $request)
-     {
-         return $request->user();
-     });
+
+#TEST ROUTES
+
+
+Route::get('election/create', 'ElectionController@autoGenerate')
+     ->middleware('auth.web', 'oAuthorize');
+
+Route::get('/pins/create/{count}',
+    'RegistrationPinController@makePins')
+     ->middleware('auth.web', 'oAuthorize');
+
+
+#REGISTRATION ROUTES
+
 
 Route::get('/states/', 'StateController@states');
 
@@ -31,19 +40,24 @@ Route::get('/state/{id}/lgas/', 'StateController@lgas');
 Route::post('/official/register', 'UserController@registerOfficial')
      ->middleware('ORValidation');
 
-Route::get('/pins/create/{count}',
-    'RegistrationPinController@makePins')
-     ->middleware('auth.web', 'oAuthorize');
 
-Route::get('election/create', 'ElectionController@autoGenerate')
-     ->middleware('auth.web', 'oAuthorize');
+#LOGIN ROUTE
+
 
 Route::post('/login', 'AuthenticationController@authenticate');
+
+
+#AUTHENTICATION ROUTES
+
 
 Route::get('/validate-web-app-session',
     'AuthenticationController@validateWebAppCookie');
 
 Route::get('/logout', 'AuthenticationController@logoutWebApp');
+
+
+#DASHBOARD HOME ROUTES
+
 
 Route::get('/dashboard/user', 'DashboardController@getUser')
      ->middleware('auth.web')
@@ -52,6 +66,10 @@ Route::get('/dashboard/user', 'DashboardController@getUser')
 Route::get('/dashboard/home',
     'DashboardController@initializeHomePage')
      ->middleware('auth.web');
+
+
+#ELECTION ROUTES
+
 
 Route::get('/dashboard/election', 'ElectionController@getElection')
      ->middleware('auth.web');
@@ -68,6 +86,10 @@ Route::post('/dashboard/election/edit', 'ElectionController@edit')
 Route::get('/dashboard/election/finalize',
     'ElectionController@finalize')
      ->middleware('auth.web', 'oAuthorize');
+
+
+#PARTY ROUTES
+
 
 Route::post('/dashboard/party', 'PartyController@create')
      ->middleware('auth.web', 'oAuthorize', 'pValidate');
@@ -87,6 +109,10 @@ Route::post('/dashboard/party/{id}/edit',
     'PartyController@updateParty')
      ->where('id', '[0-9]+')
      ->middleware('auth.web', 'oAuthorize', 'pValidate');
+
+
+#VOTERS ROUTES
+
 
 Route::get('/voters/create/{count}', 'UserController@makeVoters')
      ->middleware('auth.web', 'oAuthorize');
@@ -112,4 +138,28 @@ Route::get('/dashboard/voters/filterbystate/{state}/{perPage}',
 
 Route::get('/dashboard/voters/filterbylga/{lga}/{perPage}',
     'VoterController@filterByLGA')
+     ->middleware('auth.web', 'oAuthorize');
+
+
+#CANDIDATES ROUTES
+
+
+Route::get('/dashboard/candidates/list/{perPage}',
+    'CandidateController@index')
+     ->middleware('auth.web');
+
+Route::post('/dashboard/candidates/{userId}/create',
+    'CandidateController@create')
+     ->middleware('auth.web', 'oAuthorize', 'cValidate');
+
+Route::post('/dashboard/candidates/{id}',
+    'CandidateController@read')
+     ->middleware('auth.web');
+
+Route::post('/dashboard/candidates/{id}/edit',
+    'CanidateController@update')
+     ->middleware('auth.web', 'oAuthorize', 'eCValidate');
+
+Route::delete('/dashboard/candidates/{id}',
+    'CandidateController@delete')
      ->middleware('auth.web', 'oAuthorize');
