@@ -19,18 +19,17 @@ class CandidateUpdateValidator
             'President',
             'Vice-President'
         ];
-        if (!array_key_exists($request->role,
-            $roles)) return response(['err' => 'invalidRole']);
+        if (!in_array($request->role, $roles)) return response([
+            "isValid" => false,
+            'err'     => 'invalidRole'
+        ]);
         else if (!is_null($request->file('candidate_picture')))
         {
-            if (!$request->file('candidate_picture')
-                         ->isValid()) return response([
+            if (!$request->file('candidate_picture')->isValid()) return response([
                 "isValid" => false,
                 "field"   => "candidate_picture"
             ]);
-            else if (!substr($request->file('candidate_picture')
-                                     ->getMimeType(), 0, 5) ==
-                'image') return response([
+            else if (!substr($request->file('candidate_picture')->getMimeType(), 0, 5) == 'image') return response([
                 "isValid" => false,
                 "field"   => "candidate_picture"
             ]);

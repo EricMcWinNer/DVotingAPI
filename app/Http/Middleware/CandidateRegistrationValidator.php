@@ -9,8 +9,8 @@ class CandidateRegistrationValidator
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
+     * @param  \Illuminate\Http\Request $request
+     * @param  \Closure $next
      * @return mixed
      */
     public function handle($request, Closure $next)
@@ -19,20 +19,16 @@ class CandidateRegistrationValidator
             'President',
             'Vice-President'
         ];
-        if (!array_key_exists($request->role,
-            $roles)) return response(['err' => 'invalidRole']);
+        if (!in_array($request->role, $roles)) return response(['isValid' => false, "field" => "invalidRole"]);
         else if (is_null($request->file('candidate_picture'))) return response([
             "isValid" => false,
             "field"   => "candidate_picture"
         ]);
-        else if (!$request->file('candidate_picture')
-                          ->isValid()) return response([
+        else if (!$request->file('candidate_picture')->isValid()) return response([
             "isValid" => false,
             "field"   => "candidate_picture"
         ]);
-        else if (!substr($request->file('candidate_picture')
-                                 ->getMimeType(), 0, 5) ==
-            'image') return response([
+        else if (!substr($request->file('candidate_picture')->getMimeType(), 0, 5) == 'image') return response([
             "isValid" => false,
             "field"   => "candidate_picture"
         ]);

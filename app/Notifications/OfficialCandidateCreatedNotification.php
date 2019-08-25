@@ -21,7 +21,7 @@ class OfficialCandidateCreatedNotification extends Notification
      */
     public function __construct(Candidate $candidate)
     {
-        //
+        $this->candidate = $candidate;
     }
 
     /**
@@ -32,7 +32,7 @@ class OfficialCandidateCreatedNotification extends Notification
      */
     public function via($notifiable)
     {
-        return ['mail'];
+        return ['database'];
     }
 
     /**
