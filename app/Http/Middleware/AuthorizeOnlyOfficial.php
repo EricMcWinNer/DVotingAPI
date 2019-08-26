@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Utils\UserHelper;
 use Closure;
 
 class AuthorizeOnlyOfficial
@@ -16,7 +17,7 @@ class AuthorizeOnlyOfficial
     public function handle($request, Closure $next)
     {
         $user = $request->user();
-        if (in_array("official", json_decode($user->roles)))
+        if (UserHelper::isOfficial($user))
             return $next($request);
         else
             return response(["err" => 403]);

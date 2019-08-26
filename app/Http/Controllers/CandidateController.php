@@ -9,6 +9,7 @@ use App\LocalGovernment;
 use App\Party;
 use App\State;
 use App\User;
+use App\Utils\UserHelper;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -39,31 +40,11 @@ class CandidateController extends Controller
         $user = User::find($userId);
         $election = Election::where('status', 'pending')->orderBy('id', 'desc')->first();
         $party = Party::find($request->party_id);
-        $roles = json_decode($user->roles);
-        if (is_null($user)) return response([
-            'completed' => false,
-            'err'       => 'userNotExist'
-        ]);
-        else if (in_array("official", $roles)) return response([
-            'completed' => false,
-            'err'       => 'officialCantBeCandidate'
-        ]);
-        else if (in_array("candidate", $roles)) return response([
-            'completed' => false,
-            'err'       => 'alreadyCandidate'
-        ]);
-        else if (is_null($election)) return response([
-            'completed' => false,
-            'err'       => 'noPendingElection'
-        ]);
-        else if (is_null($party)) return response([
-            'completed' => false,
-            'err'       => 'partyNotExist'
-        ]);
-        else if (Carbon::parse($user->dob["dob"])->age < 35) return response([
-            'completed' => false,
-            'err'       => "notOfAge"
-        ]);
+        if (is_null($user)) return $this->returnError("userNotExist");
+        else if (!UserHelper::isOnlyVoter($user)) return $this->returnError("officialCantBeCandidate");
+        else if (is_null($election)) return $this->returnError("noPendingElection");
+        else if (is_null($party)) return $this->returnError("partyNotExist");
+        else if (Carbon::parse($user->dob["dob"])->age < 35) return $this->returnError("notOfAge");
         else
         {
             $candidatePicture = null;
@@ -78,19 +59,13 @@ class CandidateController extends Controller
                 $candidate->role = $request->role;
                 $candidate->election_id = $election->id;
                 $candidate->party_name = $party->name;
-                $user->roles = json_encode([
-                    "voter",
-                    "candidate"
-                ]);
+                $user = UserHelper::makeCandidate($user);
                 foreach (Candidate::where('election_id', $election->id)->cursor() as $existingCandidate)
                 {
                     if ($existingCandidate->role == $candidate->role &&
                         $existingCandidate->party_id == $candidate->party_id)
                     {
-                        return response([
-                            "completed" => false,
-                            "err"       => "candidateConflictingRole"
-                        ]);
+                        return $this->returnError("candidateConflictingRole");
                     }
                 }
                 $user->save();
@@ -123,22 +98,13 @@ class CandidateController extends Controller
     public function update(Request $request, $id)
     {
         $candidate = Candidate::find($id);
-        if (is_null($candidate)) return response([
-            'completed' => false,
-            'err'       => 'candidateNotExist'
-        ]);
+        if (is_null($candidate)) return $this->returnError("candidateNotExist");
         else
         {
             $election = Election::where('status', 'pending')->orderBy('id', 'desc')->first();
             $party = Party::find($request->party_id);
-            if (is_null($election)) return response([
-                'completed' => false,
-                'err'       => 'noPendingElection'
-            ]);
-            else if (is_null($party)) return response([
-                'completed' => false,
-                'err'       => 'partyNotExist'
-            ]);
+            if (is_null($election)) return $this->returnError("noPendingElection");
+            else if (is_null($party)) return $this->returnError("partyNotExist");
             else
             {
                 $candidatePicture = null;
@@ -159,10 +125,7 @@ class CandidateController extends Controller
                             $existingCandidate->party_id == $candidate->party_id &&
                             $existingCandidate->id != $candidate->id)
                         {
-                            return response([
-                                "completed" => false,
-                                "err"       => "candidateConflictingRole"
-                            ]);
+                            return $this->returnError("candidateConflictingRole");
                         }
                     }
                     $candidate->save();
@@ -185,7 +148,7 @@ class CandidateController extends Controller
         $candidate = Candidate::find($id);
         if (is_null($candidate)) return response(["candidate" => null]);
         $user = User::find($candidate->user_id);
-        $user->roles = json_encode(["voter"]);
+        $user = UserHelper::makeVoter($user);
         $user->save();
         $candidate->delete();
         return response(["completed" => true]);
@@ -301,6 +264,14 @@ class CandidateController extends Controller
             "election"  => $election,
             "candidate" => $candidate,
             "parties"   => $parties
+        ]);
+    }
+
+    private function returnError($err)
+    {
+        return response([
+            "completed" => false,
+            "err"       => $err
         ]);
     }
 

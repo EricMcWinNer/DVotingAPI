@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\User;
+use App\Utils\UserHelper;
 use Illuminate\Http\Request;
 
 class OfficialController extends Controller
@@ -17,10 +18,16 @@ class OfficialController extends Controller
     {
         $user = User::find($id);
         if (is_null($user)) return response(["completed" => false]);
-        $user->roles = json_encode([
-            "voter",
-            "candidate"
-        ]);
+        $user = UserHelper::makeOfficial($user);
+        $user->save();
+        return response(["completed" => true]);
+    }
+
+    public function delete($id)
+    {
+        $user = User::find($id);
+        if (is_null($user)) return response(["completed" => false]);
+        $user = UserHelper::makeVoter($user);
         $user->save();
         return response(["completed" => true]);
     }

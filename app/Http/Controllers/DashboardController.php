@@ -25,7 +25,7 @@ class DashboardController extends Controller
         $electionInfo = app(ElectionController::class)->getCurrentElectionMinimalInfo();
         $voterCount = User::count();
         $partiesCount = Party::count();
-        $voterCreatedLast = Utility::dateStringParser(User::latest('created_at')->first()->created_at);
+        $voterCreatedLast = Utility::dateStringParser(User::latest('created_at')->first()->created_at["created_at_default"]);
         $partyCreatedLast = Utility::dateStringParser(Party::latest('created_at')->first()->created_at);
         return response([
             "isSessionValid" => "true",
