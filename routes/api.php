@@ -147,3 +147,20 @@ Route::get('/dashboard/candidates/new/search/{search}/{perPage?}', 'CandidateCon
 Route::get('/dashboard/candidates/{id}/create/initialize', 'CandidateController@initCreate')
      ->middleware('auth.web', 'oAuthorize');
 
+
+#OFFICIAL ROUTES
+
+
+Route::get('/dashboard/officials/create', 'OfficialController@getEligibleOfficials')
+     ->middleware('auth.web', 'oAuthorize');
+
+Route::post('/dashboard/officials/{id}', 'OfficialController@create')->middleware('auth.web', 'oAuthorize');
+
+Route::get('/dashboard/officials/{id}', 'OfficialController@read')->middleware('auth.web', 'oAuthorize');
+
+Route::get('/dashboard/officials', 'OfficialController@index')->middleware('auth.web', 'oAuthorize');
+
+Route::post('/dashboard/officials/{id}/update', 'OfficialController@update')->middleware('auth.web', 'oAuthorize');
+
+Route::delete('/dashboard/officials/{id}', 'OfficialController@delete')->middleware('auth.web', 'oAuthorize');
+

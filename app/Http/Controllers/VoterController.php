@@ -10,96 +10,27 @@ use Illuminate\Http\Request;
 
 class VoterController extends Controller
 {
-    private function returnVotersWithStates($voters)
-    {
-        $votersWithStates = $voters->map(function (User $voter)
-        {
-            $lga = $voter->lga_id;
-            $lga = LocalGovernment::find($lga);
-            $state = State::find($lga->state_id);
-            $voter->state = $state->name;
-            $voter->lga = $lga->name;
-            $voter->age = [
-                "dob_string" => Carbon::parse($voter->dob)
-                                      ->format('jS M, Y'),
-                "age"        => Carbon::parse($voter->dob)->age
-            ];
-            return $voter;
-        });
-        return response([
-            "voters"        => $votersWithStates,
-            "current_page"  => $voters->currentPage(),
-            "last_page"     => $voters->lastPage(),
-            "per_page"      => $voters->perPage(),
-            "next_page_url" => $voters->nextPageUrl(),
-            "total_results" => $voters->total()
-        ]);
-    }
-
     public function index($perPage = 20)
     {
-        $voters = User::orderBy('name', 'asc')
-                      ->paginate($perPage);
-        $votersWithStates = $voters->map(function (User $voter)
-        {
-            $lga = $voter->lga_id;
-            $lga = LocalGovernment::find($lga);
-            $state = State::find($lga->state_id);
-            $voter->age = [
-                "dob_string" => Carbon::parse($voter->dob)
-                                      ->format('jS M, Y'),
-                "age"        => Carbon::parse($voter->dob)->age
-            ];
-            $voter->state = $state->name;
-            $voter->lga = $lga->name;
-            return $voter;
-        });
+        $voters = User::with('lga.state')->orderBy('name', 'asc')->paginate($perPage);
         if (!isset($_GET["page"]))
         {
+            $lgas = LocalGovernment::with('state')->get();
             $states = State::all();
-            $lgas = LocalGovernment::all();
-            $lgas = $lgas->map(function ($lga)
-            {
-                $lga->state = State::where('state_id', $lga->state_id)
-                                   ->first()->name;
-                return $lga;
-            });
             return response([
-                "voters"        => $votersWithStates,
-                "current_page"  => $voters->currentPage(),
-                "last_page"     => $voters->lastPage(),
-                "per_page"      => $voters->perPage(),
-                "next_page_url" => $voters->nextPageUrl(),
-                "total_results" => $voters->total(),
-                "states"        => $states,
-                "lgas"          => $lgas
+                "states" => $states,
+                "lgas"   => $lgas,
+                "voters" => $voters
             ]);
         }
         return response([
-            "voters"        => $votersWithStates,
-            "current_page"  => $voters->currentPage(),
-            "last_page"     => $voters->lastPage(),
-            "per_page"      => $voters->perPage(),
-            "next_page_url" => $voters->nextPageUrl(),
-            "total_results" => $voters->total(),
+            "voters" => $voters,
         ]);
     }
 
     public function getVoterById($id)
     {
-        $voter = User::find($id);
-        $lga = $voter->lga_id;
-        $lga = LocalGovernment::find($lga);
-        $state = State::find($lga->state_id);
-        $voter->state = $state->name;
-        $voter->lga = $lga->name;
-        $voter->age = [
-            "dob_string" => Carbon::parse($voter->dob)
-                                  ->format('jS M, Y'),
-            "age"        => Carbon::parse($voter->dob)->age
-        ];
-        $voter->date_created = Carbon::parse($voter->created_at)
-                                     ->format('jS M, Y');
+        $voter = User::with('lga.state')->where('id', $id)->first();
         return response(["voter" => $voter]);
     }
 
@@ -110,90 +41,50 @@ class VoterController extends Controller
         {
             if ($_GET["filter_by"] == "state")
             {
-                $voters = User::where(function ($query) use ($needle)
+                $voters = User::with('lga.state')->where(function ($query) use ($needle)
                 {
-                    $query->where('email', 'like',
-                        '%' . $needle . '%')
-                          ->orWhere('name', 'like',
-                              '%' . $needle . '%')
-                          ->orWhere('address1', 'like',
-                              '%' . $needle . '%')
-                          ->orWhere('address2', 'like',
-                              '%' . $needle . '%')
-                          ->orWhere('marital_status', 'like',
-                              '%' . $needle . '%')
-                          ->orWhere('occupation', 'like',
-                              '%' . $needle . '%')
-                          ->orWhere('gender', 'like',
-                              '%' . $needle . '%')
-                          ->orWhere('phone_number', 'like',
-                              '%' . $needle . '%');
-                })
-                              ->where('state_id',
-                                  (int)$_GET["filter_value"])
-                              ->orderBy('name', 'asc')
-                              ->paginate($perPage);
+                    $query->where('email', 'like', '%' . $needle . '%')->orWhere('name', 'like', '%' . $needle . '%')
+                          ->orWhere('address1', 'like', '%' . $needle . '%')->orWhere('address2', 'like', '%' .
+                            $needle . '%')->orWhere('marital_status', 'like', '%' . $needle . '%')
+                          ->orWhere('occupation', 'like', '%' . $needle . '%')->orWhere('gender', 'like', '%' .
+                            $needle . '%')->orWhere('phone_number', 'like', '%' . $needle . '%');
+                })->where('state_id', (int)$_GET["filter_value"])->orderBy('name', 'asc')->paginate($perPage);
             }
             else
             {
-                $voters = User::where(function ($query) use ($needle)
+                $voters = User::with('lga.state')->where(function ($query) use ($needle)
                 {
-                    $query->where('email', 'like',
-                        '%' . $needle . '%')
-                          ->orWhere('name', 'like',
-                              '%' . $needle . '%')
-                          ->orWhere('address1', 'like',
-                              '%' . $needle . '%')
-                          ->orWhere('address2', 'like',
-                              '%' . $needle . '%')
-                          ->orWhere('marital_status', 'like',
-                              '%' . $needle . '%')
-                          ->orWhere('occupation', 'like',
-                              '%' . $needle . '%')
-                          ->orWhere('gender', 'like',
-                              '%' . $needle . '%')
-                          ->orWhere('phone_number', 'like',
-                              '%' . $needle . '%');
-                })
-                              ->where('lga_id',
-                                  (int)$_GET["filter_value"])
-                              ->orderBy('name', 'asc')
-                              ->paginate($perPage);
+                    $query->where('email', 'like', '%' . $needle . '%')->orWhere('name', 'like', '%' . $needle . '%')
+                          ->orWhere('address1', 'like', '%' . $needle . '%')->orWhere('address2', 'like', '%' .
+                            $needle . '%')->orWhere('marital_status', 'like', '%' . $needle . '%')
+                          ->orWhere('occupation', 'like', '%' . $needle . '%')->orWhere('gender', 'like', '%' .
+                            $needle . '%')->orWhere('phone_number', 'like', '%' . $needle . '%');
+                })->where('lga_id', (int)$_GET["filter_value"])->orderBy('name', 'asc')->paginate($perPage);
             }
         }
         else
         {
             $voters =
-                User::where('email', 'like', '%' . $needle . '%')
-                    ->orWhere('name', 'like', '%' . $needle . '%')
-                    ->orWhere('address1', 'like', '%' . $needle . '%')
-                    ->orWhere('address2', 'like', '%' . $needle . '%')
-                    ->orWhere('marital_status', 'like',
-                        '%' . $needle . '%')
-                    ->orWhere('occupation', 'like',
-                        '%' . $needle . '%')
-                    ->orWhere('gender', 'like', '%' . $needle . '%')
-                    ->orWhere('phone_number', 'like',
-                        '%' . $needle . '%')
-                    ->orderBy('name', 'asc')
-                    ->paginate($perPage);
+                User::with('lga.state')->where('email', 'like', '%' . $needle . '%')->orWhere('name', 'like', '%' .
+                    $needle . '%')->orWhere('address1', 'like', '%' . $needle . '%')->orWhere('address2', 'like', '%' .
+                    $needle . '%')->orWhere('marital_status', 'like', '%' . $needle . '%')
+                    ->orWhere('occupation', 'like', '%' . $needle . '%')->orWhere('gender', 'like', '%' . $needle . '%')
+                    ->orWhere('phone_number', 'like', '%' . $needle . '%')->orderBy('name', 'asc')->paginate($perPage);
         }
-        return $this->returnVotersWithStates($voters);
+        return response(["voters" => $voters]);
 
     }
 
     public function filterByState($state, $perPage = 20)
     {
-        $voters = User::where('state_id', $state)
-                      ->paginate($perPage);
-        return $this->returnVotersWithStates($voters);
+        $voters = User::with('lga.state')->where('state_id', $state)->paginate($perPage);
+        return response(["voters" => $voters]);
     }
 
     public function filterByLGA($lga, $perPage = 20)
     {
-        $voters = User::where('lga_id', $lga)
-                      ->paginate($perPage);
-        return $this->returnVotersWithStates($voters);
+        $voters = User::with('lga.state')->where('lga_id', $lga)->paginate($perPage);
+        return response(["voters" => $voters]);
     }
 
 

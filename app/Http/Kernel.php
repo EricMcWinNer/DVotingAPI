@@ -52,25 +52,24 @@ class Kernel extends HttpKernel
      * @var array
      */
     protected $routeMiddleware = [
-        'auth' => \App\Http\Middleware\Authenticate::class,
-        'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
-        'bindings' => \Illuminate\Routing\Middleware\SubstituteBindings::class,
+        'auth'          => \App\Http\Middleware\Authenticate::class,
+        'auth.basic'    => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
+        'bindings'      => \Illuminate\Routing\Middleware\SubstituteBindings::class,
         'cache.headers' => \Illuminate\Http\Middleware\SetCacheHeaders::class,
-        'can' => \Illuminate\Auth\Middleware\Authorize::class,
-        'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
-        'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
-        'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
-        'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
-        'cors' => \App\Http\Middleware\CORS::class,
-        'ORValidation' => \App\Http\Middleware\OfficialRegistrationValidation::class,
-        'auth.web' => \App\Http\Middleware\AuthenticateOnce::class,
-        'eValidate' => \App\Http\Middleware\ElectionValidation::class,
-        'pValidate' => \App\Http\Middleware\PartyValidator::class,
-        'oAuthorize' => \App\Http\Middleware\AuthorizeOnlyOfficial::class,
-        'cValidate' =>
-            \App\Http\Middleware\CandidateRegistrationValidator::class,
-        'eCValidate' =>
-            \App\Http\Middleware\CandidateUpdateValidator::class,
+        'can'           => \Illuminate\Auth\Middleware\Authorize::class,
+        'guest'         => \App\Http\Middleware\RedirectIfAuthenticated::class,
+        'signed'        => \Illuminate\Routing\Middleware\ValidateSignature::class,
+        'throttle'      => \Illuminate\Routing\Middleware\ThrottleRequests::class,
+        'verified'      => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+        'cors'          => \App\Http\Middleware\CORS::class,
+        'ORValidation'  => \App\Http\Middleware\OfficialRegistrationValidation::class,
+        'auth.web'      => \App\Http\Middleware\AuthenticateOnce::class,
+        'eValidate'     => \App\Http\Middleware\ElectionValidation::class,
+        'pValidate'     => \App\Http\Middleware\PartyValidator::class,
+        'oAuthorize'    => \App\Http\Middleware\AuthorizeOnlyOfficial::class,
+        'cValidate'     => \App\Http\Middleware\CandidateRegistrationValidator::class,
+        'eCValidate'    => \App\Http\Middleware\CandidateUpdateValidator::class,
+        'oValidate'     => \App\Http\Middleware\OfficialValidator::class
     ];
 
     /**
