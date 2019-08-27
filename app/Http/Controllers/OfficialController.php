@@ -96,6 +96,13 @@ class OfficialController extends Controller
         return response(["completed" => true]);
     }
 
+    public function confirmOfficialCreation($id)
+    {
+        $user = User::find($id);
+        if (is_null($user) || !UserHelper::isOnlyVoter($user)) return response(["user" => null]);
+        return response(["user" => $user]);
+    }
+
     public function delete($id)
     {
         $user = User::find($id);
@@ -173,5 +180,11 @@ class OfficialController extends Controller
         $officials = User::with('lga.state')->whereJsonContains("roles", "official")->where("lga_id", $id)
                          ->orderBy('name', 'asc')->paginate($perPage);
         return response(["officials" => $officials]);
+    }
+
+    public function read($id)
+    {
+        $official = User::with('lga.state')->whereJsonContains('roles', 'official')->where('id', $id)->first();
+        return response(["official" => $official]);
     }
 }

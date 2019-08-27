@@ -211,6 +211,8 @@ Route::prefix('/dashboard/officials')->group(function ()
 
         Route::post('/{id}/create', 'OfficialController@create');
 
+        Route::get('/{id}/create/confirm', 'OfficialController@confirmOfficialCreation');
+
         Route::get('/{id}', 'OfficialController@read')->where('id', '[0-9]+');
 
         Route::get('/index/{perPage?}', 'OfficialController@index');
