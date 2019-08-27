@@ -161,7 +161,7 @@ Route::prefix('/dashboard/candidates')->group(function ()
     {
         Route::get('/list/{perPage?}', 'CandidateController@index');
 
-        Route::get('/{id}', 'CandidateController@read');
+        Route::get('/{id}', 'CandidateController@read')->where('id', '[0-9]+');
 
         Route::get('/search/{perPage?}/{needle}', 'CandidateController@search');
 
@@ -201,9 +201,15 @@ Route::prefix('/dashboard/officials')->group(function ()
         'oAuthorize'
     ])->group(function ()
     {
-        Route::get('/create', 'OfficialController@getEligibleOfficials');
+        Route::get('/create/{perPage?}', 'OfficialController@getEligibleOfficials')->where('perPage', '[0-9]+');
 
-        Route::post('/{id}', 'OfficialController@create');
+        Route::get('/create/search/{needle}/{perPage?}', 'OfficialController@searchEligibleOfficials');
+
+        Route::get('/create/filterbystate/{id}/{perPage?}', 'OfficialController@filterEligibleOfficialsByState');
+
+        Route::get('/create/filterbylga/{id}/{perPage?}', 'OfficialController@filterEligibleOfficialsByLGA');
+
+        Route::post('/{id}/create', 'OfficialController@create');
 
         Route::get('/{id}', 'OfficialController@read')->where('id', '[0-9]+');
 

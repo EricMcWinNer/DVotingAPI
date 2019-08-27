@@ -173,7 +173,8 @@ class CandidateController extends Controller
     public function indexNonCandidates($perPage = 20)
     {
         $users = User::with('lga.state')->whereJsonDoesntContain('roles', 'candidate')
-                     ->whereJsonDoesntContain('roles', 'official')->orderBy('name', 'asc')->paginate($perPage);
+                     ->whereJsonDoesntContain('roles', 'official')->whereJsonDoesntContain('roles', 'officer')
+                     ->orderBy('name', 'asc')->paginate($perPage);
         if (!isset($_GET["page"]))
         {
             $states = State::all();
