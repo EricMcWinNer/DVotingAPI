@@ -46,6 +46,11 @@ class User extends Authenticatable
         return $this->belongsTo(\App\LocalGovernment::class);
     }
 
+    public function state()
+    {
+        return $this->belongsTo(\App\State::class);
+    }
+
     public function candidate()
     {
         return $this->hasOne(\App\Candidate::class);
