@@ -26,6 +26,12 @@ class EventServiceProvider extends ServiceProvider
         ],
         'App\Event\OfficialDeleted'   => [
             'App\Listeners\SendOfficialDeletedNotification'
+        ],
+        'App\Event\OfficerCreated'    => [
+            'App\Listeners\SendOfficerCreatedNotification'
+        ],
+        'App\Event\OfficerDeleted'    => [
+            'App\Listeners\SendOfficerDeletedNotification'
         ]
     ];
 

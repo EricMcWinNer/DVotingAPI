@@ -229,3 +229,38 @@ Route::prefix('/dashboard/officials')->group(function ()
     });
 });
 
+
+#OFFICER ROUTES
+
+
+Route::prefix('/dashboard/officers')->group(function ()
+{
+    Route::middleware(['auth.web'])->group(function ()
+    {
+        Route::middleware(['oAuthorize'])->group(function ()
+        {
+            Route::get("/{perPage?}", "OfficerController@index")->where("perPage", "[0-9]+");
+
+            Route::get("/create/{perPage?}", "OfficerController@getEligibleOfficers")->where('perPage', '[0-9]+');
+
+            Route::get("/create/search/{needle}/{perPage?}", "OfficerController@searchEligibleOfficers");
+
+            Route::get("/create/filterbystate/{id}/{perPage?}", "OfficerController@filterEligibleOfficersByState");
+
+            Route::get("/create/filterbylga/{id}/{perPage?}", "OfficerController@filterEligibleOfficersByLGA");
+
+            Route::get("/{id}/create/confirm", "OfficerController@confirmOfficerCreation");
+
+            Route::post("/{id}", "OfficerController@create")->where("id", "[0-9]+");
+
+            Route::delete("/{id}", "OfficerController@delete")->where("id", "[0-9]+");
+
+            Route::get("/search/{needle}/{perPage?}", "OfficerController@search");
+
+            Route::get("/filterbystate/{id}/{perPage?}", "OfficerController@filterOfficersByState");
+
+            Route::get("/filterbylga/{id}/{perPage?}", "OfficerController@filterOfficersByLGA");
+        });
+    });
+});
+

@@ -14,6 +14,10 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * Class CandidateController
+ * @package App\Http\Controllers
+ */
 class CandidateController extends Controller
 {
     /**
@@ -95,6 +99,12 @@ class CandidateController extends Controller
         return response(["candidate" => $candidate]);
     }
 
+    /**
+     * @param Request $request
+     * @param $id
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     * @throws \Exception
+     */
     public function update(Request $request, $id)
     {
         $candidate = Candidate::find($id);
@@ -143,6 +153,10 @@ class CandidateController extends Controller
         }
     }
 
+    /**
+     * @param $id
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function delete($id)
     {
         $candidate = Candidate::find($id);
@@ -154,12 +168,20 @@ class CandidateController extends Controller
         return response(["completed" => true]);
     }
 
+    /**
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function makeCandidate()
     {
         $candidate = factory(Candidate::class, 20)->create();
         return response(["candidate" => $candidate]);
     }
 
+    /**
+     * @param int $perPage
+     * @param $needle
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function search($perPage = 20, $needle)
     {
         $candidates =
@@ -170,6 +192,10 @@ class CandidateController extends Controller
         ]);
     }
 
+    /**
+     * @param int $perPage
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function indexNonCandidates($perPage = 20)
     {
         $users = User::with('lga.state')->whereJsonDoesntContain('roles', 'candidate')
@@ -190,6 +216,11 @@ class CandidateController extends Controller
         ]);
     }
 
+    /**
+     * @param $id
+     * @param int $perPage
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function nonCandidatesState($id, $perPage = 20)
     {
         $users = User::with('lga.state')->where('state_id', $id)->whereJsonDoesntContain('roles', 'candidate')
@@ -197,6 +228,11 @@ class CandidateController extends Controller
         return response(["users" => $users]);
     }
 
+    /**
+     * @param $id
+     * @param int $perPage
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function nonCandidatesLga($id, $perPage = 20)
     {
         $users = User::with('lga.state')->where('lga_id', $id)->whereJsonDoesntContain('roles', 'candidate')
@@ -204,6 +240,11 @@ class CandidateController extends Controller
         return response(["users" => $users]);
     }
 
+    /**
+     * @param $search
+     * @param $perPage
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function nonCandidateSearch($search, $perPage)
     {
         $users = null;
@@ -240,6 +281,10 @@ class CandidateController extends Controller
         return response(["users" => $users]);
     }
 
+    /**
+     * @param $id
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function initCreate($id)
     {
         $election = Election::where('status', 'pending')->orWhere('status', 'ongoing')->orWhere('status', 'completed')
@@ -254,6 +299,10 @@ class CandidateController extends Controller
         ]);
     }
 
+    /**
+     * @param $id
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function initEdit($id)
     {
         $election = Election::where('status', 'pending')->orWhere('status', 'ongoing')->orWhere('status', 'completed')
@@ -268,6 +317,10 @@ class CandidateController extends Controller
         ]);
     }
 
+    /**
+     * @param $err
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     private function returnError($err)
     {
         return response([

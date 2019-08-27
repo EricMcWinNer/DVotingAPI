@@ -6,8 +6,16 @@ use App\Party;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * Class PartyController
+ * @package App\Http\Controllers
+ */
 class PartyController extends Controller
 {
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function create(Request $request)
     {
         if (is_null($request->file('partyLogo')))
@@ -40,18 +48,29 @@ class PartyController extends Controller
         }
     }
 
+    /**
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function getParties()
     {
         $parties = Party::orderBy('name')->get();
         return response(["parties" => $parties]);
     }
 
+    /**
+     * @param $id
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function getParty($id)
     {
         $party = Party::find($id);
         return response(["party" => $party]);
     }
 
+    /**
+     * @param $id
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function deleteParty($id)
     {
         $party = Party::find($id);
@@ -60,6 +79,11 @@ class PartyController extends Controller
         return response(["deleted" => true]);
     }
 
+    /**
+     * @param Request $request
+     * @param $id
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function updateParty(Request $request, $id)
     {
         try {

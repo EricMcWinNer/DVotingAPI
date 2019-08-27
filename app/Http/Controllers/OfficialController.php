@@ -10,8 +10,16 @@ use App\User;
 use App\Utils\UserHelper;
 use Illuminate\Http\Request;
 
+/**
+ * Class OfficialController
+ * @package App\Http\Controllers
+ */
 class OfficialController extends Controller
 {
+    /**
+     * @param int $perPage
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function getEligibleOfficials($perPage = 20)
     {
         $users = User::with('lga.state')->whereJsonDoesntContain("roles", "official")
@@ -30,6 +38,11 @@ class OfficialController extends Controller
         return response(["users" => $users]);
     }
 
+    /**
+     * @param $needle
+     * @param int $perPage
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function searchEligibleOfficials($needle, $perPage = 20)
     {
         $officials = null;
@@ -70,6 +83,11 @@ class OfficialController extends Controller
         return response(["users" => $officials]);
     }
 
+    /**
+     * @param $id
+     * @param int $perPage
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function filterEligibleOfficialsByState($id, $perPage = 20)
     {
         $officials = User::with('lga.state')->whereJsonDoesntContain("roles", "official")
@@ -78,6 +96,11 @@ class OfficialController extends Controller
         return response(["users" => $officials]);
     }
 
+    /**
+     * @param $id
+     * @param int $perPage
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function filterEligibleOfficialsByLGA($id, $perPage = 20)
     {
         $officials = User::with('lga.state')->whereJsonDoesntContain("roles", "candidate")
@@ -86,6 +109,10 @@ class OfficialController extends Controller
         return response(["users" => $officials]);
     }
 
+    /**
+     * @param $id
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function create($id)
     {
         $user = User::find($id);
@@ -96,6 +123,10 @@ class OfficialController extends Controller
         return response(["completed" => true]);
     }
 
+    /**
+     * @param $id
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function confirmOfficialCreation($id)
     {
         $user = User::find($id);
@@ -103,6 +134,10 @@ class OfficialController extends Controller
         return response(["user" => $user]);
     }
 
+    /**
+     * @param $id
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function delete($id)
     {
         $user = User::find($id);
@@ -113,6 +148,10 @@ class OfficialController extends Controller
         return response(["completed" => true]);
     }
 
+    /**
+     * @param int $perPage
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function index($perPage = 20)
     {
         $officials =
@@ -130,6 +169,11 @@ class OfficialController extends Controller
         return response(["officials" => $officials]);
     }
 
+    /**
+     * @param $needle
+     * @param int $perPage
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function search($needle, $perPage = 20)
     {
         $officials = null;
@@ -167,6 +211,11 @@ class OfficialController extends Controller
         return response(["officials" => $officials]);
     }
 
+    /**
+     * @param $id
+     * @param int $perPage
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function filterOfficialsByState($id, $perPage = 20)
     {
         $officials = User::with('lga.state')->whereJsonContains("roles", "official")->where("state_id", $id)
@@ -175,6 +224,11 @@ class OfficialController extends Controller
     }
 
 
+    /**
+     * @param $id
+     * @param int $perPage
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function filterOfficialsByLGA($id, $perPage = 20)
     {
         $officials = User::with('lga.state')->whereJsonContains("roles", "official")->where("lga_id", $id)
@@ -182,6 +236,10 @@ class OfficialController extends Controller
         return response(["officials" => $officials]);
     }
 
+    /**
+     * @param $id
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function read($id)
     {
         $official = User::with('lga.state')->whereJsonContains('roles', 'official')->where('id', $id)->first();

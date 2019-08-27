@@ -7,10 +7,17 @@ use App\State;
 use App\LocalGovernment;
 use League\Flysystem\Adapter\Local;
 
+/**
+ * Class StateController
+ * @package App\Http\Controllers
+ */
 class StateController extends Controller
 {
     //
 
+    /**
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function states()
     {
         $states = State::all();
@@ -28,6 +35,10 @@ class StateController extends Controller
         );
     }
 
+    /**
+     * @param $id
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function lgas($id)
     {
         $lgas = LocalGovernment::where('state_id', $id)->get();

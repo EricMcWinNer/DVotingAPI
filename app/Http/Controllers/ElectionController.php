@@ -7,8 +7,16 @@ use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
+/**
+ * Class ElectionController
+ * @package App\Http\Controllers
+ */
 class ElectionController extends Controller
 {
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function autoGenerate(Request $request)
     {
         $election = factory(Election::class)->make();
@@ -16,6 +24,10 @@ class ElectionController extends Controller
         return response($election);
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function create(Request $request)
     {
         try
@@ -53,6 +65,9 @@ class ElectionController extends Controller
         }
     }
 
+    /**
+     * @return bool
+     */
     private function electionExists()
     {
         $election = Election::where('status', 'pending')
@@ -63,6 +78,10 @@ class ElectionController extends Controller
         return $election !== null;
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function getElection(Request $request)
     {
         $election = Election::where('status', 'pending')
@@ -101,6 +120,9 @@ class ElectionController extends Controller
         ]);
     }
 
+    /**
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function getCurrentElectionMinimalInfo()
     {
         $election = Election::where('status', 'pending')
@@ -125,6 +147,10 @@ class ElectionController extends Controller
         ]);
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function delete(Request $request)
     {
         if (!$this->electionExists()) return response(["exists" => false]);
@@ -140,6 +166,10 @@ class ElectionController extends Controller
         }
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function edit(Request $request)
     {
         try
@@ -192,6 +222,10 @@ class ElectionController extends Controller
         }
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function finalize(Request $request)
     {
         if ($this->electionExists())

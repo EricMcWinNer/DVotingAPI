@@ -8,8 +8,16 @@ use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
+/**
+ * Class VoterController
+ * @package App\Http\Controllers
+ */
 class VoterController extends Controller
 {
+    /**
+     * @param int $perPage
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function index($perPage = 20)
     {
         $voters = User::with('lga.state')->orderBy('name', 'asc')->paginate($perPage);
@@ -28,12 +36,21 @@ class VoterController extends Controller
         ]);
     }
 
+    /**
+     * @param $id
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function getVoterById($id)
     {
         $voter = User::with('lga.state')->where('id', $id)->first();
         return response(["voter" => $voter]);
     }
 
+    /**
+     * @param $needle
+     * @param int $perPage
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function genericSearch($needle, $perPage = 20)
     {
         $voters = null;
@@ -75,12 +92,22 @@ class VoterController extends Controller
 
     }
 
+    /**
+     * @param $state
+     * @param int $perPage
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function filterByState($state, $perPage = 20)
     {
         $voters = User::with('lga.state')->where('state_id', $state)->paginate($perPage);
         return response(["voters" => $voters]);
     }
 
+    /**
+     * @param $lga
+     * @param int $perPage
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function filterByLGA($lga, $perPage = 20)
     {
         $voters = User::with('lga.state')->where('lga_id', $lga)->paginate($perPage);
