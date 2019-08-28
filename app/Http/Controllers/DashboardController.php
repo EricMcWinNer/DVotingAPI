@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Candidate;
 use App\Party;
 use App\User;
 use App\Utils\Utility;
@@ -23,7 +24,7 @@ class DashboardController extends Controller
     {
         return response([
             "isSessionValid" => "true",
-            "user" => $request->user(),
+            "user"           => $request->user(),
         ]);
     }
 
@@ -36,18 +37,34 @@ class DashboardController extends Controller
         $electionInfo = app(ElectionController::class)->getCurrentElectionMinimalInfo();
         $voterCount = User::count();
         $partiesCount = Party::count();
-        $voterCreatedLast = Utility::dateStringParser(User::latest('created_at')->first()->created_at["created_at_default"]);
+        $candidatesCount = Candidate::count();
+        $pollingOfficersCount = User::whereJsonContains('roles', 'officer')->count();
+        $voterCreatedLast =
+            Utility::dateStringParser(User::latest('created_at')->first()->created_at["created_at_default"]);
         $partyCreatedLast = Utility::dateStringParser(Party::latest('created_at')->first()->created_at);
+        $candidateCreatedLast = Utility::dateStringParser(Candidate::latest('created_at')->first()->created_at);
+        $officerCreatedLast =
+            Utility::dateStringParser(User::whereJsonContains('roles', 'officer')->latest('created_at')
+                                          ->first()->created_at["created_at_default"]);
+
         return response([
             "isSessionValid" => "true",
-            "election" => $electionInfo,
-            "voters" => [
-                "count" => Utility::shortTextifyNumbers($voterCount),
-                "lastCreated" => $voterCreatedLast
+            "election"       => $electionInfo,
+            "voters"         => [
+                "count"       => Utility::shortTextifyNumbers($voterCount),
+                "lastCreated" => $voterCreatedLast,
             ],
-            "parties" => [
-                "count" => $partiesCount,
-                "lastCreated" => $partyCreatedLast
+            "parties"        => [
+                "count"       => $partiesCount,
+                "lastCreated" => $partyCreatedLast,
+            ],
+            "candidates"     => [
+                "count"       => $candidatesCount,
+                "lastCreated" => $candidateCreatedLast,
+            ],
+            "officers"       => [
+                "count"       => $pollingOfficersCount,
+                "lastCreated" => $officerCreatedLast,
             ]
         ]);
     }
