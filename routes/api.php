@@ -239,7 +239,7 @@ Route::prefix('/dashboard/officers')->group(function ()
     {
         Route::middleware(['oAuthorize'])->group(function ()
         {
-            Route::get("/{perPage?}", "OfficerController@index")->where("perPage", "[0-9]+");
+            Route::get("/index/{perPage?}", "OfficerController@index")->where("perPage", "[0-9]+");
 
             Route::get("/create/{perPage?}", "OfficerController@getEligibleOfficers")->where('perPage', '[0-9]+');
 
@@ -254,6 +254,8 @@ Route::prefix('/dashboard/officers')->group(function ()
             Route::post("/{id}", "OfficerController@create")->where("id", "[0-9]+");
 
             Route::delete("/{id}", "OfficerController@delete")->where("id", "[0-9]+");
+
+            Route::get("/{id}", "OfficerController@read")->where('id', '[0-9]+');
 
             Route::get("/search/{needle}/{perPage?}", "OfficerController@search");
 

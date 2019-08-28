@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\LocalGovernment;
+use App\State;
 use App\User;
 use App\Utils\UserHelper;
 use Illuminate\Http\Request;
@@ -20,6 +22,16 @@ class OfficerController extends Controller
     {
         $officers =
             User::with('lga.state')->whereJsonContains("roles", "officer")->orderBy('name', 'asc')->paginate($perPage);
+        if (!isset($_GET["page"]))
+        {
+            $lga = LocalGovernment::with('state')->orderBy('name', 'asc')->get();
+            $state = State::orderBy('name', 'asc')->get();
+            return response([
+                "officers" => $officers,
+                "lgas"     => $lga,
+                "states"   => $state
+            ]);
+        }
         return response(["officers" => $officers]);
     }
 
@@ -32,6 +44,16 @@ class OfficerController extends Controller
         $users = User::with('lga.state')->whereJsonDoesntContain('roles', 'candidate')
                      ->whereJsonDoesntContain('roles', 'official')->whereJsonDoesntContain('roles', 'officer')
                      ->orderBy('name', 'asc')->paginate($perPage);
+        if (!isset($_GET["page"]))
+        {
+            $lga = LocalGovernment::with('state')->orderBy('name', 'asc')->get();
+            $state = State::orderBy('name', 'asc')->get();
+            return response([
+                "users"  => $users,
+                "lgas"   => $lga,
+                "states" => $state
+            ]);
+        }
         return response(["users" => $users]);
     }
 
@@ -123,7 +145,7 @@ class OfficerController extends Controller
     {
         $user = User::find($id);
         if (is_null($user) || !UserHelper::isOnlyVoter($user)) return response(["completed" => false]);
-        $user = UserHelper::makeOfficial($user);
+        $user = UserHelper::makeOfficer($user);
         $user->save();
         return response(["completed" => true]);
     }
@@ -204,5 +226,11 @@ class OfficerController extends Controller
         $officers =
             User::with('lga.state')->whereJsonContains('roles', 'officer')->where('lga_id', $id)->paginate($perPage);
         return response(["officers" => $officers]);
+    }
+
+    public function read($id)
+    {
+        $officer = User::with('lga.state')->whereJsonContains('roles', 'officer')->where("id", $id)->first();
+        return response(["officer" => $officer]);
     }
 }
