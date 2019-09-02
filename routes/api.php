@@ -106,9 +106,11 @@ Route::prefix('/dashboard/party')->group(function ()
 {
     Route::middleware(['auth.web'])->group(function ()
     {
-        Route::get('/all', 'PartyController@getParties');
+        Route::get('/all/{perPage?}', 'PartyController@getParties');
 
         Route::get('/{id}', 'PartyController@getParty')->where('id', '[0-9]+');
+
+        Route::get('/search/{needle}/{perPage?}', 'PartyController@search');
 
 
         Route::middleware(['oAuthorize'])->group(function ()
@@ -263,6 +265,26 @@ Route::prefix('/dashboard/officers')->group(function ()
 
             Route::get("/filterbylga/{id}/{perPage?}", "OfficerController@filterOfficersByLGA");
         });
+    });
+});
+
+
+#REGISTRATION PIN ROUTES
+
+
+Route::prefix('/dashboard/pins')->group(function ()
+{
+    Route::middleware([
+        'auth.web',
+        'oAuthorize'
+    ])->group(function ()
+    {
+        Route::get('/{perPage?}', 'RegistrationPinController@index')->where('perPage', '[0-9]+');
+
+        Route::get('/officers/{count}/make', 'RegistrationPinController@makeOfficerPins');
+
+        Route::get('/officials/{count}/make', 'RegistrationPinController@makeOfficialPins');
+
     });
 });
 

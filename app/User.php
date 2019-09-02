@@ -56,6 +56,19 @@ class User extends Authenticatable
         return $this->hasOne(\App\Candidate::class);
     }
 
+    public function pinsCreated()
+    {
+        return $this->hasMany(\App\RegistrationPin::class, "created_by");
+    }
+
+    public function pinUsed()
+    {
+        return $this->hasOne(\App\RegistrationPin::class, 'used_by');
+    }
+
+
+    #Accessors and Mutators
+
     public function getDobAttribute($value)
     {
         return [
@@ -72,4 +85,6 @@ class User extends Authenticatable
             "created_at_default" => $value
         ];
     }
+
+
 }

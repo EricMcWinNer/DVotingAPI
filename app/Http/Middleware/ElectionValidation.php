@@ -41,8 +41,9 @@ class ElectionValidation
                 return $next($request);
         } catch (InvalidDateException $e) {
             return response(["isValid" => false, "field" => "invalidDates"]);
-        } catch (\Exception $e) {
-            return response(["isValid" => false, "field" => $request->name]);
+        } catch(\InvalidArgumentException $e)
+        {
+            return response(["isValid" => false, "field" => "invalidDates"]);
         }
     }
 }

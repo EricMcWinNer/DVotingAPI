@@ -42,10 +42,11 @@ class DashboardController extends Controller
         $voterCreatedLast =
             Utility::dateStringParser(User::latest('created_at')->first()->created_at["created_at_default"]);
         $partyCreatedLast = Utility::dateStringParser(Party::latest('created_at')->first()->created_at);
-        $candidateCreatedLast = Utility::dateStringParser(Candidate::latest('created_at')->first()->created_at);
+        $candidateCreatedLast =
+            $candidatesCount > 0 ? Utility::dateStringParser(Candidate::latest('created_at')->first()->created_at) : "N/A";
         $officerCreatedLast =
-            Utility::dateStringParser(User::whereJsonContains('roles', 'officer')->latest('created_at')
-                                          ->first()->created_at["created_at_default"]);
+            $pollingOfficersCount > 0 ? Utility::dateStringParser(User::whereJsonContains('roles', 'officer')->latest('created_at')
+                                          ->first()->created_at["created_at_default"]) : "N/A";
 
         return response([
             "isSessionValid" => "true",

@@ -224,7 +224,7 @@ class CandidateController extends Controller
     public function nonCandidatesState($id, $perPage = 20)
     {
         $users = User::with('lga.state')->where('state_id', $id)->whereJsonDoesntContain('roles', 'candidate')
-                     ->whereJsonDoesntContain('roles', 'official')->paginate($perPage);
+                     ->whereJsonDoesntContain('roles', 'official')->orderBy('name', 'asc')->paginate($perPage);
         return response(["users" => $users]);
     }
 
@@ -236,7 +236,7 @@ class CandidateController extends Controller
     public function nonCandidatesLga($id, $perPage = 20)
     {
         $users = User::with('lga.state')->where('lga_id', $id)->whereJsonDoesntContain('roles', 'candidate')
-                     ->whereJsonDoesntContain('roles', 'official')->paginate($perPage);
+                     ->whereJsonDoesntContain('roles', 'official')->orderBy('name', 'asc')->paginate($perPage);
         return response(["users" => $users]);
     }
 
