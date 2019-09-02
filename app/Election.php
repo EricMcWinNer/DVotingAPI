@@ -9,5 +9,8 @@ class Election extends Model
 {
     use SoftDeletes;
 
-
+    public function candidates()
+    {
+        return $this->hasMany(\App\Candidate::class);
+    }
 }

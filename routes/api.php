@@ -20,130 +20,271 @@ use Illuminate\Support\Facades\Storage;
 
 
 #TEST ROUTES
+Route::prefix('/test')->group(function ()
+{
+    Route::get('election/create', 'ElectionController@autoGenerate')->middleware('auth.web', 'oAuthorize');
+
+    Route::get('/pins/create/{count}', 'RegistrationPinController@makePins')->middleware('auth.web', 'oAuthorize');
 
 
-Route::get('election/create', 'ElectionController@autoGenerate')->middleware('auth.web', 'oAuthorize');
-
-Route::get('/pins/create/{count}', 'RegistrationPinController@makePins')->middleware('auth.web', 'oAuthorize');
+});
 
 
 #REGISTRATION ROUTES
 
 
-Route::get('/states/', 'StateController@states');
+Route::prefix('/misc')->group(function ()
+{
+    Route::get('/states/', 'StateController@states');
 
-Route::get('/state/{id}/lgas/', 'StateController@lgas');
+    Route::get('/state/{id}/lgas/', 'StateController@lgas');
 
-Route::post('/official/register', 'UserController@registerOfficial')->middleware('ORValidation');
-
-
-#LOGIN ROUTE
-
-
-Route::post('/login', 'AuthenticationController@authenticate');
+});
 
 
 #AUTHENTICATION ROUTES
 
 
-Route::get('/validate-web-app-session', 'AuthenticationController@validateWebAppCookie');
+Route::prefix('/web/auth')->group(function ()
+{
+    Route::get('/validate-web-app-session', 'AuthenticationController@validateWebAppCookie');
 
-Route::get('/logout', 'AuthenticationController@logoutWebApp');
+    Route::get('/logout', 'AuthenticationController@logoutWebApp');
+
+    Route::post('/login', 'AuthenticationController@authenticate');
+
+    Route::post('/official/register', 'UserController@registerOfficial')->middleware('ORValidation');
+
+
+});
 
 
 #DASHBOARD HOME ROUTES
 
 
-Route::get('/dashboard/user', 'DashboardController@getUser')->middleware('auth.web')->name('DashboardUser');
+Route::prefix('/dashboard/home')->group(function ()
+{
 
-Route::get('/dashboard/home', 'DashboardController@initializeHomePage')->middleware('auth.web');
+    Route::middleware(['auth.web'])->group(function ()
+    {
+        Route::get('/', 'DashboardController@initializeHomePage');
+
+        Route::get('/user', 'DashboardController@getUser');
+
+    });
+});
 
 
 #ELECTION ROUTES
 
 
-Route::get('/dashboard/election', 'ElectionController@getElection')->middleware('auth.web');
+Route::prefix('/dashboard/election')->group(function ()
+{
+    Route::middleware(['auth.web'])->group(function ()
+    {
+        Route::get('/', 'ElectionController@getElection');
 
-Route::post('/dashboard/election', 'ElectionController@create')->middleware('auth.web', 'oAuthorize', 'eValidate');
 
-Route::delete('/dashboard/election', 'ElectionController@delete')->middleware('auth.web', 'oAuthorize');
+        Route::middleware(['oValidate'])->group(function ()
+        {
+            Route::post('/', 'ElectionController@create')->middleware('eValidate');
 
-Route::post('/dashboard/election/edit', 'ElectionController@edit')->middleware('auth.web', 'oAuthorize', 'eValidate');
+            Route::delete('/', 'ElectionController@delete');
 
-Route::get('/dashboard/election/finalize', 'ElectionController@finalize')->middleware('auth.web', 'oAuthorize');
+            Route::post('/edit', 'ElectionController@edit')->middleware('eValidate');
+
+            Route::get('/finalize', 'ElectionController@finalize');
+
+        });
+    });
+});
 
 
 #PARTY ROUTES
 
+Route::prefix('/dashboard/party')->group(function ()
+{
+    Route::middleware(['auth.web'])->group(function ()
+    {
+        Route::get('/all/{perPage?}', 'PartyController@getParties');
 
-Route::post('/dashboard/party', 'PartyController@create')->middleware('auth.web', 'oAuthorize', 'pValidate');
+        Route::get('/{id}', 'PartyController@getParty')->where('id', '[0-9]+');
 
-Route::get('/dashboard/party/all', 'PartyController@getParties')->middleware('auth.web');
+        Route::get('/search/{needle}/{perPage?}', 'PartyController@search');
 
-Route::get('/dashboard/party/{id}', 'PartyController@getParty')->where('id', '[0-9]+')->middleware('auth.web');
 
-Route::delete('/dashboard/party/{id}', 'PartyController@deleteParty')->where('id', '[0-9]+')->middleware('auth.web');
+        Route::middleware(['oAuthorize'])->group(function ()
+        {
+            Route::post('/', 'PartyController@create')->middleware('pValidate');
 
-Route::post('/dashboard/party/{id}/edit', 'PartyController@updateParty')->where('id', '[0-9]+')
-     ->middleware('auth.web', 'oAuthorize', 'pValidate');
+            Route::delete('/{id}', 'PartyController@deleteParty')->where('id', '[0-9]+');
+
+            Route::post('/{id}/edit', 'PartyController@updateParty')->where('id', '[0-9]+')->middleware('pValidate');
+        });
+
+    });
+});
 
 
 #VOTERS ROUTES
 
 
-Route::get('/voters/create/{count}', 'UserController@makeVoters')->middleware('auth.web', 'oAuthorize');
+Route::prefix('/dashboard/voters')->group(function ()
+{
+    Route::middleware([
+        'auth.web',
+        'oAuthorize'
+    ])->group(function ()
+    {
+        Route::get('/create/{count}', 'UserController@makeVoters');
 
-Route::get('/dashboard/voters/list/{perPage?}', 'VoterController@index')->middleware('auth.web', 'oAuthorize');
+        Route::get('/list/{perPage?}', 'VoterController@index');
 
-Route::get('/dashboard/voters/{id}', 'VoterController@getVoterById')->where('id', '[0-9]+')
-     ->middleware('auth.web', 'oAuthorize');
+        Route::get('/{id}', 'VoterController@getVoterById')->where('id', '[0-9]+');
 
-Route::post('/voters/search', 'VoterController@searchVoters')->middleware('auth.web', 'oAuthorize');
+        Route::post('/search', 'VoterController@searchVoters');
 
-Route::get('/dashboard/voters/genericsearch/{needle}/{perPage}', 'VoterController@genericSearch')
-     ->middleware('auth.web', 'oAuthorize');
+        Route::get('/genericsearch/{needle}/{perPage}', 'VoterController@genericSearch');
 
-Route::get('/dashboard/voters/filterbystate/{state}/{perPage}', 'VoterController@filterByState')
-     ->middleware('auth.web', 'oAuthorize');
+        Route::get('/filterbystate/{state}/{perPage}', 'VoterController@filterByState');
 
-Route::get('/dashboard/voters/filterbylga/{lga}/{perPage}', 'VoterController@filterByLGA')
-     ->middleware('auth.web', 'oAuthorize');
+        Route::get('/filterbylga/{lga}/{perPage}', 'VoterController@filterByLGA');
+
+    });
+});
 
 
 #CANDIDATES ROUTES
 
 
-Route::get('/dashboard/candidates/list/{perPage?}', 'CandidateController@index')->middleware('auth.web');
+Route::prefix('/dashboard/candidates')->group(function ()
+{
+    Route::middleware(['auth.web'])->group(function ()
+    {
+        Route::get('/list/{perPage?}', 'CandidateController@index');
 
-Route::post('/dashboard/candidates/{userId}/create', 'CandidateController@create')
-     ->middleware('auth.web', 'oAuthorize', 'cValidate');
+        Route::get('/{id}', 'CandidateController@read')->where('id', '[0-9]+');
 
-Route::get('/dashboard/candidates/make', 'CandidateController@makeCandidate');
+        Route::get('/search/{perPage?}/{needle}', 'CandidateController@search');
 
-Route::get('/dashboard/candidates/new/{perPage?}', 'CandidateController@indexNonCandidates')
-     ->middleware('auth.web', 'oAuthorize');
+        Route::middleware(['oAuthorize'])->group(function ()
+        {
+            Route::post('/{userId}/create', 'CandidateController@create')->middleware('cValidate');
 
-Route::get('/dashboard/candidates/{id}', 'CandidateController@read')->middleware('auth.web');
+            Route::get('/make', 'CandidateController@makeCandidate');
 
-Route::post('/dashboard/candidates/{id}/edit', 'CandidateController@update')
-     ->middleware('auth.web', 'oAuthorize', 'eCValidate');
+            Route::get('/new/{perPage?}', 'CandidateController@indexNonCandidates');
 
-Route::get('/dashboard/candidates/{id}/edit/init', 'CandidateController@initEdit')
-     ->middleware('auth.web', 'oAuthorize');
+            Route::post('/{id}/edit', 'CandidateController@update')->middleware('eCValidate');
 
-Route::delete('/dashboard/candidates/{id}', 'CandidateController@delete')->middleware('auth.web', 'oAuthorize');
+            Route::get('/{id}/edit/init', 'CandidateController@initEdit');
 
-Route::get('/dashboard/candidates/search/{perPage?}/{needle}', 'CandidateController@search')->middleware('auth.web');
+            Route::delete('/{id}', 'CandidateController@delete');
 
-Route::get('/dashboard/candidates/new/filterbystate/{id}/{perPage?}', 'CandidateController@nonCandidatesState')
-     ->middleware('auth.web', 'oAuthorize');
+            Route::get('new/filterbystate/{id}/{perPage?}', 'CandidateController@nonCandidatesState');
 
-Route::get('/dashboard/candidates/new/filterbylga/{id}/{perPage?}', 'CandidateController@nonCandidatesLga')
-     ->middleware('auth.web', 'oAuthorize');
+            Route::get('/new/filterbylga/{id}/{perPage?}', 'CandidateController@nonCandidatesLga');
 
-Route::get('/dashboard/candidates/new/search/{search}/{perPage?}', 'CandidateController@nonCandidateSearch')
-     ->middleware('auth.web', 'oAuthorize');
+            Route::get('/new/search/{search}/{perPage?}', 'CandidateController@nonCandidateSearch');
 
-Route::get('/dashboard/candidates/{id}/create/initialize', 'CandidateController@initCreate')
-     ->middleware('auth.web', 'oAuthorize');
+            Route::get('/{id}/create/initialize', 'CandidateController@initCreate');
+        });
+    });
+});
+
+
+#OFFICIAL ROUTES
+
+
+Route::prefix('/dashboard/officials')->group(function ()
+{
+    Route::middleware([
+        'auth.web',
+        'oAuthorize'
+    ])->group(function ()
+    {
+        Route::get('/create/{perPage?}', 'OfficialController@getEligibleOfficials')->where('perPage', '[0-9]+');
+
+        Route::get('/create/search/{needle}/{perPage?}', 'OfficialController@searchEligibleOfficials');
+
+        Route::get('/create/filterbystate/{id}/{perPage?}', 'OfficialController@filterEligibleOfficialsByState');
+
+        Route::get('/create/filterbylga/{id}/{perPage?}', 'OfficialController@filterEligibleOfficialsByLGA');
+
+        Route::post('/{id}/create', 'OfficialController@create');
+
+        Route::get('/{id}/create/confirm', 'OfficialController@confirmOfficialCreation');
+
+        Route::get('/{id}', 'OfficialController@read')->where('id', '[0-9]+');
+
+        Route::get('/index/{perPage?}', 'OfficialController@index');
+
+        Route::get('/search/{needle}/{perPage?}', 'OfficialController@search');
+
+        Route::post('/{id}/update', 'OfficialController@update');
+
+        Route::delete('/{id}', 'OfficialController@delete');
+
+        Route::get('/filterbystate/{id}/{perPage}', 'OfficialController@filterOfficialsByState');
+
+        Route::get('/filterbylga/{id}/{perPage}', 'OfficialController@filterOfficialsByLGA');
+    });
+});
+
+
+#OFFICER ROUTES
+
+
+Route::prefix('/dashboard/officers')->group(function ()
+{
+    Route::middleware(['auth.web'])->group(function ()
+    {
+        Route::middleware(['oAuthorize'])->group(function ()
+        {
+            Route::get("/index/{perPage?}", "OfficerController@index")->where("perPage", "[0-9]+");
+
+            Route::get("/create/{perPage?}", "OfficerController@getEligibleOfficers")->where('perPage', '[0-9]+');
+
+            Route::get("/create/search/{needle}/{perPage?}", "OfficerController@searchEligibleOfficers");
+
+            Route::get("/create/filterbystate/{id}/{perPage?}", "OfficerController@filterEligibleOfficersByState");
+
+            Route::get("/create/filterbylga/{id}/{perPage?}", "OfficerController@filterEligibleOfficersByLGA");
+
+            Route::get("/{id}/create/confirm", "OfficerController@confirmOfficerCreation");
+
+            Route::post("/{id}", "OfficerController@create")->where("id", "[0-9]+");
+
+            Route::delete("/{id}", "OfficerController@delete")->where("id", "[0-9]+");
+
+            Route::get("/{id}", "OfficerController@read")->where('id', '[0-9]+');
+
+            Route::get("/search/{needle}/{perPage?}", "OfficerController@search");
+
+            Route::get("/filterbystate/{id}/{perPage?}", "OfficerController@filterOfficersByState");
+
+            Route::get("/filterbylga/{id}/{perPage?}", "OfficerController@filterOfficersByLGA");
+        });
+    });
+});
+
+
+#REGISTRATION PIN ROUTES
+
+
+Route::prefix('/dashboard/pins')->group(function ()
+{
+    Route::middleware([
+        'auth.web',
+        'oAuthorize'
+    ])->group(function ()
+    {
+        Route::get('/{perPage?}', 'RegistrationPinController@index')->where('perPage', '[0-9]+');
+
+        Route::get('/officers/{count}/make', 'RegistrationPinController@makeOfficerPins');
+
+        Route::get('/officials/{count}/make', 'RegistrationPinController@makeOfficialPins');
+
+    });
+});
 

@@ -12,10 +12,18 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * Class UserController
+ * @package App\Http\Controllers
+ */
 class UserController extends Controller
 {
     //
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function registerOfficial(Request $request)
     {
         $genders = [
@@ -80,6 +88,11 @@ class UserController extends Controller
         return response(["status" => "success"]);
     }
 
+    /**
+     * @param $count
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     * @throws \Exception
+     */
     public function makeVoters($count)
     {
         $itr = 0;
@@ -112,6 +125,9 @@ class UserController extends Controller
         return response($users);
     }
 
+    /**
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     */
     public function setFakeUsersStates()
     {
         $users = User::all();
