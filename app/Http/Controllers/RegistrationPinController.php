@@ -41,11 +41,11 @@ class RegistrationPinController extends Controller
             default:
                 if ($_GET["status"] === "unused") $pins = RegistrationPin::with([
                     'createdBy:id,name,email'
-                ])->whereNull('date_used')->paginate($perPage);
+                ])->whereNull('date_used')->orderBy('created_at', 'desc')->paginate($perPage);
                 else $pins = RegistrationPin::with([
                     'usedBy:id,name,email',
                     'createdBy:id,name,email'
-                ])->whereNotNull('date_used')->paginate($perPage);
+                ])->whereNotNull('date_used')->orderBy('created_at', 'desc')->paginate($perPage);
                 break;
         }
         return response(["pins" => $pins]);

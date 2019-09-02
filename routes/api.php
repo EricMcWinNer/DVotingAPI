@@ -281,9 +281,9 @@ Route::prefix('/dashboard/pins')->group(function ()
     {
         Route::get('/{perPage?}', 'RegistrationPinController@index')->where('perPage', '[0-9]+');
 
-        Route::get('/officers/{count}/make', 'RegistrationPinController@makeOfficerPins');
+        Route::get('/officers/{count}/make', 'RegistrationPinController@makeOfficerPins')->where('count', '[0-9]+');
 
-        Route::get('/officials/{count}/make', 'RegistrationPinController@makeOfficialPins');
+        Route::get('/officials/{count}/make', 'RegistrationPinController@makeOfficialPins')->where('count', '[0-9]+');
 
     });
 });
