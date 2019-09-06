@@ -15,14 +15,12 @@ use Illuminate\Support\Facades\Storage;
 
 class Utility
 {
-    public static function shortTextifyNumbers(int $number): string
+    public static function shortTextifyNumbers(int $number)
+    : string
     {
-        if ($number >= 1000000000 && $number < 1000000000000)
-            return round($number / 1000000000) . "B";
-        else if ($number >= 1000000 && $number < 1000000000)
-            return round($number / 1000000) . "M";
-        else if ($number >= 1000 && $number < 1000000)
-            return round($number / 1000) . "K";
+        if ($number >= 1000000000 && $number < 1000000000000) return round($number / 1000000000) . "B";
+        else if ($number >= 1000000 && $number < 1000000000) return round($number / 1000000) . "M";
+        else if ($number >= 1000 && $number < 1000000) return round($number / 1000) . "K";
         else
             return $number;
     }
@@ -30,16 +28,11 @@ class Utility
     public static function dateStringParser($date)
     {
         $date = new Carbon($date);
-        if ($date->isSameMinute())
-            return "just now";
-        else if ($date->isSameHour())
-            return Carbon::now()->diffInMinutes($date) . " mins ago";
-        else if ($date->isSameDay())
-            return $date->format('H:i');
-        else if ($date->isYesterday())
-            return "yesterday, " . $date->format('H:i');
-        else if ($date->isSameYear())
-            return $date->format("jS, M");
+        if ($date->isSameMinute()) return "just now";
+        else if ($date->isSameHour()) return Carbon::now()->diffInMinutes($date) . " mins ago";
+        else if ($date->isSameDay()) return $date->format('H:i');
+        else if ($date->isYesterday()) return "yesterday, " . $date->format('H:i');
+        else if ($date->isSameYear()) return $date->format("jS, M");
         else
             return $date->format("jS, M 'y");
     }
@@ -49,11 +42,37 @@ class Utility
     {
         $fileSystem = new Filesystem();
         $files = Storage::disk('public')->files();
-        for ($i = 0; $i < count($files); $i++) {
+        for ($i = 0; $i < count($files); $i++)
+        {
             Storage::disk('public')->move($files[$i], "profile-picture/" . ($i + 1) . ".jpg");
         }
         /*$renamedFiles = Storage::disk('public')->files('profile-picture');*/
-        return response(["files" => $files, "extenstion" => $fileSystem->extension($files[0])]);
+        return response([
+            "files"      => $files,
+            "extenstion" => $fileSystem->extension($files[0])
+        ]);
+    }
+
+    public static function validateWebCamBase64($string)
+    : bool
+    {
+        $data = explode(",", $string)[1];
+        $type = explode(":", explode(";", $string)[0])[1];
+        if (base64_encode(base64_decode($data, true)) === $data)
+        {
+            if ($type != "image/jpeg") return false;
+            else
+                return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    public static function extractDataFromWebCamBase64($string)
+    {
+        return explode(",", $string)[1];
     }
 
 

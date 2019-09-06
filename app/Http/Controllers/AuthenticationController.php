@@ -16,98 +16,120 @@ class AuthenticationController extends Controller
 
     public function authenticate(Request $request)
     {
-        $credentials = $request->input();
-        if (Cookie::has('jwt')) {
+        $credentials = $request->only('email', 'password');
+        if (Cookie::has('jwt'))
+        {
             $jwt = $request->cookie('jwt');
-            try {
+            try
+            {
                 $decodedJwt = JWT::decode($jwt, env("APP_KEY"), ['HS256']);
                 $decodedArray = [
                     'user_id' => $decodedJwt->user_id,
-                    'exp' => $decodedJwt->exp,
+                    'exp'     => $decodedJwt->exp,
                 ];
-                if (time() < $decodedArray['exp']) {
-                    if (Auth::loginUsingId($decodedArray['user_id'])) {
+                if (time() < $decodedArray['exp'])
+                {
+                    if (Auth::loginUsingId($decodedArray['user_id']))
+                    {
                         $time = time() + (60 * 60 * 24);
                         $tokenPayLoad = [
                             "user_id" => $decodedArray['user_id'],
-                            'exp' => $time
+                            'exp'     => $time
                         ];
                         $jWToken = JWT::encode($tokenPayLoad, env("APP_KEY"), 'HS256');
 
-                        return response(["isValid" => "true"])
-                            ->cookie('jwt', $jWToken, $time, "/");
+                        return response(["isValid" => "true"])->cookie('jwt', $jWToken, $time, "/");
                     }
-
-                } else {
+                    else
+                    {
+                        return $this->basicAuth($credentials);
+                    }
+                }
+                else
+                {
                     $this->basicAuth($credentials);
                 }
-            } catch (ExpiredException $e) {
+            } catch (ExpiredException $e)
+            {
                 Log::debug($e->getMessage());
                 return $this->basicAuth($credentials);
-            } catch (SignatureInvalidException $e) {
+            } catch (SignatureInvalidException $e)
+            {
                 // In this case, you may also want to send an email to yourself with the JWT
                 // If someone uses a JWT with an invalid signature, it could
                 // be a hacking attempt.
                 Log::debug($e->getMessage());
                 return $this->basicAuth($credentials);
-            } catch (\Exception $e) {
+            } catch (\Exception $e)
+            {
                 // Use the default error message
                 Log::debug($e->getMessage());
                 return $this->basicAuth($credentials);
             }
-        } else {
+        }
+        else
+        {
             return $this->basicAuth($credentials);
         }
     }
 
     private function basicAuth($credentials)
     {
-        if (Auth::once($credentials)) {
+        if (Auth::once($credentials))
+        {
             $time = time() + (60 * 60 * 24);
             $tokenPayLoad = [
                 "user_id" => Auth::user()->id,
-                'exp' => $time
+                'exp'     => $time
             ];
             $jWToken = JWT::encode($tokenPayLoad, env("APP_KEY"), 'HS256');
-            return response(["isValid" => "true"])
-                ->cookie('jwt', $jWToken, $time, "/");
-        } else {
-            return response(["status" => "error", "message" => "invalidCredentials"]);
+            return response(["isValid" => "true"])->cookie('jwt', $jWToken, $time, "/");
+        }
+        else
+        {
+            return response([
+                "status"  => "error",
+                "message" => "invalidCredentials"
+            ]);
         }
     }
 
     public function validateWebAppCookie(Request $request)
     {
-        if (Cookie::has('jwt')) {
+        if (Cookie::has('jwt'))
+        {
             $jwt = $request->cookie('jwt');
-            try {
+            try
+            {
                 $decodedJwt = JWT::decode($jwt, env("APP_KEY"), ['HS256']);
                 $decodedArray = [
                     'user_id' => $decodedJwt->user_id,
-                    'exp' => $decodedJwt->exp,
+                    'exp'     => $decodedJwt->exp,
                 ];
-                if (time() < $decodedArray['exp'])
-                    if (Auth::loginUsingId($decodedArray['user_id']))
-                        return response(["isSessionValid" => "true"]);
-                    else
-                        return response(["isSessionValid" => "false"]);
+                if (time() <
+                    $decodedArray['exp']) if (Auth::loginUsingId($decodedArray['user_id'])) return response(["isSessionValid" => "true"]);
                 else
                     return response(["isSessionValid" => "false"]);
-            } catch (ExpiredException $e) {
+                else
+                    return response(["isSessionValid" => "false"]);
+            } catch (ExpiredException $e)
+            {
                 return response(["isSessionValid" => "false"]);
-            } catch (SignatureInvalidException $e) {
+            } catch (SignatureInvalidException $e)
+            {
                 return response(["isSessionValid" => "false"]);
-            } catch (\Exception $e) {
+            } catch (\Exception $e)
+            {
                 return response(["isSessionValid" => "false"]);
             }
-        } else
+        }
+        else
             return response(["isSessionValid" => "false"]);
     }
 
-    public function logoutWebApp(Request $request)
+    public function logoutWebApp()
     {
         Auth::logout();
-        return response(["success" => "true"])
-            ->cookie(Cookie::forget("jwt"));
+        return response(["success" => "true"])->cookie(Cookie::forget("jwt"));
     }
 }
