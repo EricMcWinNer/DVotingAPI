@@ -27,7 +27,7 @@ class UserController extends Controller
      * @param Request $request
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
      */
-    public function registerOfficial(Request $request)
+    public function registerPrivilegedUsers(Request $request)
     {
         try
         {
@@ -42,15 +42,37 @@ class UserController extends Controller
                 'widowed'
             ];
             $fields = json_decode($request->userInfo, true);
+            $URI = $request->path();
             $fields = array_map(function ($value)
             {
                 return trim($value);
             }, $fields);
             $registrationPin = RegistrationPin::where('content', $fields['confirmationPin'])->first();
-            if (!RegistrationPinHelper::validateOfficialPin($registrationPin)) return response([
-                "isValid" => false,
-                "field"   => "confirmationPin"
-            ]);
+            if (strpos($URI, "official") !== false)
+            {
+                $validity = RegistrationPinHelper::validateOfficialPin($registrationPin);
+                if ($validity === false) return response([
+                    "isValid" => false,
+                    "field"   => "confirmationPin"
+                ]);
+                if (is_null($validity)) if ($validity === false) return response([
+                    "isValid" => false,
+                    "field"   => "confirmationPinUsed"
+                ]);
+            }
+            else
+            {
+                $validity = RegistrationPinHelper::validateOfficerPin($registrationPin);
+                if ($validity === false) return response([
+                    "isValid" => false,
+                    "field"   => "confirmationPin"
+                ]);
+                if (is_null($validity)) if ($validity === false) return response([
+                    "isValid" => false,
+                    "field"   => "confirmationPinUsed"
+                ]);
+            }
+
             $fields["gender"] = $genders[(int)$fields["gender"]];
             $fields["lastName"] = ucwords($fields["lastName"]);
             $fields["otherNames"] = ucwords($fields["otherNames"]);
@@ -62,8 +84,7 @@ class UserController extends Controller
             {
                 $profilePicture = "profile-picture/image_" . time() . ".jpeg";
                 Storage::disk('public')
-                       ->put("{$profilePicture}", base64_decode(Utility::extractDataFromWebCamBase64
-                       ($request->picture)));
+                       ->put("{$profilePicture}", base64_decode(Utility::extractDataFromWebCamBase64($request->picture)));
             }
             $user = new User;
             $user->name = $fields['lastName'] . " " . $fields["otherNames"];
@@ -78,7 +99,9 @@ class UserController extends Controller
             $user->occupation = $fields['occupation'];
             $user->marital_status = $fields['maritalStatus'];
             $user->phone_number = $fields['phoneNumber'];
-            $user = UserHelper::makeOfficial($user);
+            if (strpos($URI, "official") !== false) $user = UserHelper::makeOfficial($user);
+            else
+                $user = UserHelper::makeOfficer($user);
             $user->picture = $profilePicture;
             $registrationPin->date_used = Carbon::now()->toDateTimeString();
             $user->save();

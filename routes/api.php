@@ -53,7 +53,9 @@ Route::prefix('/web/auth')->group(function ()
 
     Route::post('/login', 'AuthenticationController@authenticate');
 
-    Route::post('/official/register', 'UserController@registerOfficial')->middleware('ORValidation');
+    Route::post('/official/register', 'UserController@registerPrivilegedUsers')->middleware('ORValidation');
+
+    Route::post('/officer/register', 'UserController@registerPrivilegedUsers')->middleware('ORValidation');
 
 
 });

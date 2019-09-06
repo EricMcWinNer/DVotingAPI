@@ -14,11 +14,21 @@ use App\RegistrationPin;
 class RegistrationPinHelper
 {
     public static function validateOfficialPin(RegistrationPin $pin)
-    : bool
+    : ?bool
     {
         if (is_null($pin)) return false;
-        else if (!is_null($pin->date_used)) return false;
-        else if ($pin->user_type !== "official") return false;
-        else return true;
+        else if (!is_null($pin->date_used)) return null;
+        else if ($pin->user_type === "official") return true;
+        else return false;
+    }
+
+    public static function validateOfficerPin(RegistrationPin $pin)
+    : ?bool
+    {
+        if (is_null($pin)) return false;
+        else if (!is_null($pin->date_used)) return null;
+        else if ($pin->user_type === "officer") return true;
+        else return false;
+
     }
 }
