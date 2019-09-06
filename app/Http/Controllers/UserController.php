@@ -6,6 +6,9 @@ use App\LocalGovernment;
 use App\State;
 use App\User;
 use App\RegistrationPin;
+use App\Utils\RegistrationPinHelper;
+use App\Utils\UserHelper;
+use App\Utils\Utility;
 use Carbon\Carbon;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Http\Request;
@@ -26,65 +29,77 @@ class UserController extends Controller
      */
     public function registerOfficial(Request $request)
     {
-        $genders = [
-            'male',
-            'female'
-        ];
-        $maritalStatus = [
-            'married',
-            'single',
-            'divorced',
-            'widowed'
-        ];
-        $fields = json_decode($request->userInfo, true);
-        $fields = array_map(function ($value)
+        try
         {
-            return trim($value);
-        }, $fields);
-        $registrationPin = RegistrationPin::where('content',
-            $fields['confirmationPin'])
-                                          ->first();
-        if (!is_null(User::where('email', $fields['email'])
-                         ->first())) return response([
-            "isValid" => false,
-            "field"   => "emailExists"
-        ]);
-        if (count($registrationPin) != 1 ||
-            !is_null($registrationPin->date_used)) return response([
-            'isValid' => false,
-            'field'   => 'confirmation pin'
-        ]);
-        $fields["gender"] = $genders[(int)$fields["gender"]];
-        $fields["lastName"] = ucwords($fields["lastName"]);
-        $fields["otherNames"] = ucwords($fields["otherNames"]);
-        $fields["maritalStatus"] =
-            $maritalStatus[(int)$fields["maritalStatus"]];
-        $profilePicture = $request->file('picture')
-                                  ->store('profile-picture',
-                                      'public');
-        $user = new User;
-        $user->name =
-            $fields['lastName'] . " " . $fields["otherNames"];
-        $user->email = $fields['email'];
-        $user->password = Hash::make($fields['password']);
-        $user->lga_id = $fields['lgaOfOrigin'];
-        $user->state_id = $fields['stateOfOrigin'];
-        $user->address1 = $fields['address1'];
-        $user->address2 = $fields['address2'];
-        $user->dob = $fields['dob'];
-        $user->gender = $fields['gender'];
-        $user->occupation = $fields['occupation'];
-        $user->marital_status = $fields['maritalStatus'];
-        $user->phone_number = $fields['phoneNumber'];
-        $user->roles = json_encode([
-            "voter",
-            "official"
-        ]);
-        $user->picture = $profilePicture;
-        $registrationPin->date_used = Carbon::now()
-                                            ->toDateTimeString();
-        $registrationPin->save();
-        $user->save();
+            $genders = [
+                'male',
+                'female'
+            ];
+            $maritalStatus = [
+                'married',
+                'single',
+                'divorced',
+                'widowed'
+            ];
+            $fields = json_decode($request->userInfo, true);
+            $fields = array_map(function ($value)
+            {
+                return trim($value);
+            }, $fields);
+            $registrationPin = RegistrationPin::where('content', $fields['confirmationPin'])->first();
+            if (!RegistrationPinHelper::validateOfficialPin($registrationPin)) return response([
+                "isValid" => false,
+                "field"   => "confirmationPin"
+            ]);
+            $fields["gender"] = $genders[(int)$fields["gender"]];
+            $fields["lastName"] = ucwords($fields["lastName"]);
+            $fields["otherNames"] = ucwords($fields["otherNames"]);
+            $fields["maritalStatus"] = $maritalStatus[(int)$fields["maritalStatus"]];
+            $profilePicture = null;
+            if ($request->hasFile('picture')) $profilePicture =
+                $request->file('picture')->store('profile-picture', 'public');
+            else
+            {
+                $profilePicture = "profile-picture/image_" . time() . ".jpeg";
+                Storage::disk('public')
+                       ->put("{$profilePicture}", base64_decode(Utility::extractDataFromWebCamBase64
+                       ($request->picture)));
+            }
+            $user = new User;
+            $user->name = $fields['lastName'] . " " . $fields["otherNames"];
+            $user->email = $fields['email'];
+            $user->password = Hash::make($fields['password']);
+            $user->lga_id = $fields['lgaOfOrigin'];
+            $user->state_id = $fields['stateOfOrigin'];
+            $user->address1 = $fields['address1'];
+            $user->address2 = $fields['address2'];
+            $user->dob = Carbon::parse($fields['dob']);
+            $user->gender = $fields['gender'];
+            $user->occupation = $fields['occupation'];
+            $user->marital_status = $fields['maritalStatus'];
+            $user->phone_number = $fields['phoneNumber'];
+            $user = UserHelper::makeOfficial($user);
+            $user->picture = $profilePicture;
+            $registrationPin->date_used = Carbon::now()->toDateTimeString();
+            $user->save();
+            $registrationPin->used_by = $user->id;
+            $registrationPin->save();
+        } catch (\Illuminate\Database\QueryException $e)
+        {
+            $errorCode = $e->errorInfo[1];
+            if ($errorCode == 1062)
+            {
+                return response([
+                    "isValid" => false,
+                    "field"   => $e->getMessage()
+                ]);
+            }
+            else
+                return response(["exception" => $e->getMessage()]);
+        } catch (\Exception $e)
+        {
+            return response(["exception" => $e->getMessage()]);
+        }
         return response(["status" => "success"]);
     }
 
@@ -137,8 +152,7 @@ class UserController extends Controller
         });
         foreach ($users as $user)
         {
-            $user->state_id =
-                LocalGovernment::find($user->lga_id)->state_id;
+            $user->state_id = LocalGovernment::find($user->lga_id)->state_id;
             $user->save();
         }
         return response(["users" => User::all()]);
