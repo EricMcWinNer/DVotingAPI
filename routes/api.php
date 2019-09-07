@@ -267,6 +267,10 @@ Route::prefix('/dashboard/officers')->group(function ()
 
             Route::get("/filterbylga/{id}/{perPage?}", "OfficerController@filterOfficersByLGA");
         });
+        Route::middleware(['ofAuthorize'])->group(function ()
+        {
+            Route::post('/register', 'OfficerVoterController@registerVoter')->middleware('ORValidation');
+        });
     });
 });
 

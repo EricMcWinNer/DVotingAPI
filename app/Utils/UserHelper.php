@@ -69,4 +69,16 @@ class UserHelper
         $roles = json_decode($user->roles);
         return in_array("voter", $roles) && count($roles) == 1;
     }
+
+    const GENDERS = [
+        'male',
+        'female'
+    ];
+
+    const MARITALSTATUSES = [
+        'married',
+        'single',
+        'divorced',
+        'widowed'
+    ];
 }

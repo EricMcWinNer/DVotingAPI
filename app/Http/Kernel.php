@@ -66,7 +66,8 @@ class Kernel extends HttpKernel
         'auth.web'      => \App\Http\Middleware\AuthenticateOnce::class,
         'eValidate'     => \App\Http\Middleware\ElectionValidation::class,
         'pValidate'     => \App\Http\Middleware\PartyValidator::class,
-        'oAuthorize'    => \App\Http\Middleware\AuthorizeOnlyOfficial::class,
+        'oAuthorize'    => \App\Http\Middleware\AuthorizeOnlyOfficials::class,
+        'ofAuthorize'   => \App\Http\Middleware\AuthorizeOnlyOfficers::class,
         'cValidate'     => \App\Http\Middleware\CandidateRegistrationValidator::class,
         'eCValidate'    => \App\Http\Middleware\CandidateUpdateValidator::class,
         'oValidate'     => \App\Http\Middleware\OfficialValidator::class
