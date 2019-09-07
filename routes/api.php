@@ -22,9 +22,11 @@ use Illuminate\Support\Facades\Storage;
 #TEST ROUTES
 Route::prefix('/test')->group(function ()
 {
-    Route::get('election/create', 'ElectionController@autoGenerate')->middleware('auth.web', 'oAuthorize');
+    Route::get('election/create', 'ElectionController@autoGenerate')
+         ->middleware('auth.web', 'oAuthorize');
 
-    Route::get('/pins/create/{count}', 'RegistrationPinController@makePins')->middleware('auth.web', 'oAuthorize');
+    Route::get('/pins/create/{count}', 'RegistrationPinController@makePins')
+         ->middleware('auth.web', 'oAuthorize');
 
 
 });
@@ -53,9 +55,11 @@ Route::prefix('/web/auth')->group(function ()
 
     Route::post('/login', 'AuthenticationController@authenticate');
 
-    Route::post('/official/register', 'UserController@registerPrivilegedUsers')->middleware('ORValidation');
+    Route::post('/official/register', 'UserController@registerPrivilegedUsers')
+         ->middleware('ORValidation');
 
-    Route::post('/officer/register', 'UserController@registerPrivilegedUsers')->middleware('ORValidation');
+    Route::post('/officer/register', 'UserController@registerPrivilegedUsers')
+         ->middleware('ORValidation');
 
 
 });
@@ -121,7 +125,8 @@ Route::prefix('/dashboard/party')->group(function ()
 
             Route::delete('/{id}', 'PartyController@deleteParty')->where('id', '[0-9]+');
 
-            Route::post('/{id}/edit', 'PartyController@updateParty')->where('id', '[0-9]+')->middleware('pValidate');
+            Route::post('/{id}/edit', 'PartyController@updateParty')->where('id', '[0-9]+')
+                 ->middleware('pValidate');
         });
 
     });
@@ -205,7 +210,8 @@ Route::prefix('/dashboard/officials')->group(function ()
         'oAuthorize'
     ])->group(function ()
     {
-        Route::get('/create/{perPage?}', 'OfficialController@getEligibleOfficials')->where('perPage', '[0-9]+');
+        Route::get('/create/{perPage?}', 'OfficialController@getEligibleOfficials')
+             ->where('perPage', '[0-9]+');
 
         Route::get('/create/search/{needle}/{perPage?}', 'OfficialController@searchEligibleOfficials');
 
@@ -245,7 +251,8 @@ Route::prefix('/dashboard/officers')->group(function ()
         {
             Route::get("/index/{perPage?}", "OfficerController@index")->where("perPage", "[0-9]+");
 
-            Route::get("/create/{perPage?}", "OfficerController@getEligibleOfficers")->where('perPage', '[0-9]+');
+            Route::get("/create/{perPage?}", "OfficerController@getEligibleOfficers")
+                 ->where('perPage', '[0-9]+');
 
             Route::get("/create/search/{needle}/{perPage?}", "OfficerController@searchEligibleOfficers");
 
@@ -266,10 +273,18 @@ Route::prefix('/dashboard/officers')->group(function ()
             Route::get("/filterbystate/{id}/{perPage?}", "OfficerController@filterOfficersByState");
 
             Route::get("/filterbylga/{id}/{perPage?}", "OfficerController@filterOfficersByLGA");
+
+            Route::get("/{id}/voters/{perPage?}", "OfficerController@getVotersRegisteredByOfficer");
         });
         Route::middleware(['ofAuthorize'])->group(function ()
         {
-            Route::post('/register', 'OfficerVoterController@registerVoter')->middleware('ORValidation');
+            Route::post('/register', 'OfficerVoterController@registerVoter')
+                 ->middleware('ORValidation');
+
+            Route::get('/voters/{perPage}', 'OfficerVoterController@getRegisteredVoters')
+                 ->where('perPage', '[0-9]+');
+
+            Route::get('/voters/{id}/read', 'OfficerVoterController@read')->where('id', '[0-9]+');
         });
     });
 });
@@ -287,9 +302,11 @@ Route::prefix('/dashboard/pins')->group(function ()
     {
         Route::get('/{perPage?}', 'RegistrationPinController@index')->where('perPage', '[0-9]+');
 
-        Route::get('/officers/{count}/make', 'RegistrationPinController@makeOfficerPins')->where('count', '[0-9]+');
+        Route::get('/officers/{count}/make', 'RegistrationPinController@makeOfficerPins')
+             ->where('count', '[0-9]+');
 
-        Route::get('/officials/{count}/make', 'RegistrationPinController@makeOfficialPins')->where('count', '[0-9]+');
+        Route::get('/officials/{count}/make', 'RegistrationPinController@makeOfficialPins')
+             ->where('count', '[0-9]+');
 
     });
 });

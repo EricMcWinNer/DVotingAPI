@@ -76,4 +76,20 @@ class OfficerVoterController extends Controller
         }
         return response(["status" => "success"]);
     }
+
+    public function getRegisteredVoters(Request $request, $perPage = 20)
+    {
+        $user = $request->user();
+        $voters = OfficerRegister::with(['voter.lga.state'])->where('officer_id', $user->id)
+                                 ->orderBy('created_at', 'desc')->paginate($perPage);
+        return response(["voters" => $voters]);
+    }
+
+    public function read(Request $request, $id)
+    {
+        $officer = $request->user();
+        $voter = OfficerRegister::with('voter.lga.state')->where('officer_id', $officer->id)
+                                ->where('voter_id', $id)->first();
+        return response(["voter" => $voter]);
+    }
 }

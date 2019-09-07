@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\LocalGovernment;
+use App\OfficerRegister;
 use App\State;
 use App\User;
 use App\Utils\UserHelper;
@@ -21,7 +22,8 @@ class OfficerController extends Controller
     public function index($perPage = 20)
     {
         $officers =
-            User::with('lga.state')->whereJsonContains("roles", "officer")->orderBy('name', 'asc')->paginate($perPage);
+            User::with('lga.state')->whereJsonContains("roles", "officer")->orderBy('name', 'asc')
+                ->paginate($perPage);
         if (!isset($_GET["page"]))
         {
             $lga = LocalGovernment::with('state')->orderBy('name', 'asc')->get();
@@ -42,8 +44,9 @@ class OfficerController extends Controller
     public function getEligibleOfficers($perPage = 20)
     {
         $users = User::with('lga.state')->whereJsonDoesntContain('roles', 'candidate')
-                     ->whereJsonDoesntContain('roles', 'official')->whereJsonDoesntContain('roles', 'officer')
-                     ->orderBy('name', 'asc')->paginate($perPage);
+                     ->whereJsonDoesntContain('roles', 'official')
+                     ->whereJsonDoesntContain('roles', 'officer')->orderBy('name', 'asc')
+                     ->paginate($perPage);
         if (!isset($_GET["page"]))
         {
             $lga = LocalGovernment::with('state')->orderBy('name', 'asc')->get();
@@ -73,17 +76,22 @@ class OfficerController extends Controller
                     $state = (int)$_GET['filter_value'];
                     $users = User::with('lga.state')->where(function ($query) use ($needle)
                     {
-                        $query->where('name', 'like', "%{$needle}%")->orWhere('phone_number', 'like', "%{$needle}%");
-                    })->whereJsonDoesntContain('roles', 'candidate')->whereJsonDoesntContain('roles', 'official')
-                                 ->whereJsonDoesntContain('roles', 'officer')->where('state_id', $state)
-                                 ->orderBy('name', 'asc')->paginate($perPage);
+                        $query->where('name', 'like', "%{$needle}%")
+                              ->orWhere('phone_number', 'like', "%{$needle}%");
+                    })->whereJsonDoesntContain('roles', 'candidate')
+                                 ->whereJsonDoesntContain('roles', 'official')
+                                 ->whereJsonDoesntContain('roles', 'officer')
+                                 ->where('state_id', $state)->orderBy('name', 'asc')
+                                 ->paginate($perPage);
                     break;
                 default:
                     $lga = (int)$_GET['filter_value'];
                     $users = User::with('lga.state')->where(function ($query) use ($needle)
                     {
-                        $query->where('name', 'like', "%{$needle}%")->orWhere('phone_number', 'like', "%{$needle}%");
-                    })->whereJsonDoesntContain('roles', 'candidate')->whereJsonDoesntContain('roles', 'official')
+                        $query->where('name', 'like', "%{$needle}%")
+                              ->orWhere('phone_number', 'like', "%{$needle}%");
+                    })->whereJsonDoesntContain('roles', 'candidate')
+                                 ->whereJsonDoesntContain('roles', 'official')
                                  ->whereJsonDoesntContain('roles', 'officer')->where('lga_id', $lga)
                                  ->orderBy('name', 'asc')->paginate($perPage);
                     break;
@@ -93,9 +101,12 @@ class OfficerController extends Controller
         {
             $users = User::with('lga.state')->where(function ($query) use ($needle)
             {
-                $query->where('name', 'like', "%{$needle}%")->orWhere('phone_number', 'like', "%{$needle}%");
-            })->whereJsonDoesntContain('roles', 'candidate')->whereJsonDoesntContain('roles', 'official')
-                         ->whereJsonDoesntContain('roles', 'officer')->orderBy('name', 'asc')->paginate($perPage);
+                $query->where('name', 'like', "%{$needle}%")
+                      ->orWhere('phone_number', 'like', "%{$needle}%");
+            })->whereJsonDoesntContain('roles', 'candidate')
+                         ->whereJsonDoesntContain('roles', 'official')
+                         ->whereJsonDoesntContain('roles', 'officer')->orderBy('name', 'asc')
+                         ->paginate($perPage);
         }
         return response(["users" => $users]);
     }
@@ -108,8 +119,9 @@ class OfficerController extends Controller
     public function filterEligibleOfficersByState($id, $perPage = 20)
     {
         $users = User::with('lga.state')->whereJsonDoesntContain('roles', 'candidate')
-                     ->whereJsonDoesntContain('roles', 'official')->whereJsonDoesntContain('roles', 'officer')
-                     ->where('state_id', $id)->paginate($perPage);
+                     ->whereJsonDoesntContain('roles', 'official')
+                     ->whereJsonDoesntContain('roles', 'officer')->where('state_id', $id)
+                     ->paginate($perPage);
         return response(["users" => $users]);
     }
 
@@ -121,8 +133,9 @@ class OfficerController extends Controller
     public function filterEligibleOfficersByLGA($id, $perPage = 20)
     {
         $users = User::with('lga.state')->whereJsonDoesntContain('roles', 'candidate')
-                     ->whereJsonDoesntContain('roles', 'official')->whereJsonDoesntContain('roles', 'officer')
-                     ->where('lga_id', $id)->paginate($perPage);
+                     ->whereJsonDoesntContain('roles', 'official')
+                     ->whereJsonDoesntContain('roles', 'officer')->where('lga_id', $id)
+                     ->paginate($perPage);
         return response(["users" => $users]);
     }
 
@@ -144,7 +157,8 @@ class OfficerController extends Controller
     public function create($id)
     {
         $user = User::find($id);
-        if (is_null($user) || !UserHelper::isOnlyVoter($user)) return response(["completed" => false]);
+        if (is_null($user) ||
+            !UserHelper::isOnlyVoter($user)) return response(["completed" => false]);
         $user = UserHelper::makeOfficer($user);
         $user->save();
         return response(["completed" => true]);
@@ -157,7 +171,8 @@ class OfficerController extends Controller
     public function delete($id)
     {
         $officer = User::find($id);
-        if (is_null($officer) || !UserHelper::isOfficer($officer)) return response(["completed" => false]);
+        if (is_null($officer) ||
+            !UserHelper::isOfficer($officer)) return response(["completed" => false]);
         $user = UserHelper::makeVoter($officer);
         $user->save();
         /*event(new OfficerDeleted($user));*/
@@ -180,17 +195,19 @@ class OfficerController extends Controller
                     $state = (int)$_GET['filter_value'];
                     $officers = User::with('lga.state')->where(function ($query) use ($needle)
                     {
-                        $query->where('name', 'like', "%{$needle}%")->orWhere('phone_number', 'like', "%{$needle}%");
-                    })->whereJsonContains('roles', 'officer')->where('state_id', $state)->orderBy('name', 'asc')
-                                    ->paginate($perPage);
+                        $query->where('name', 'like', "%{$needle}%")
+                              ->orWhere('phone_number', 'like', "%{$needle}%");
+                    })->whereJsonContains('roles', 'officer')->where('state_id', $state)
+                                    ->orderBy('name', 'asc')->paginate($perPage);
                     break;
                 default:
                     $lga = (int)$_GET['filter_value'];
                     $officers = User::with('lga.state')->where(function ($query) use ($needle)
                     {
-                        $query->where('name', 'like', "%{$needle}%")->orWhere('phone_number', 'like', "%{$needle}%");
-                    })->whereJsonContains('roles', 'officer')->where('lga_id', $lga)->orderBy('name', 'asc')
-                                    ->paginate($perPage);
+                        $query->where('name', 'like', "%{$needle}%")
+                              ->orWhere('phone_number', 'like', "%{$needle}%");
+                    })->whereJsonContains('roles', 'officer')->where('lga_id', $lga)
+                                    ->orderBy('name', 'asc')->paginate($perPage);
                     break;
             }
         }
@@ -198,7 +215,8 @@ class OfficerController extends Controller
         {
             $officers = User::with('lga.state')->where(function ($query) use ($needle)
             {
-                $query->where('name', 'like', "%{$needle}%")->orWhere('phone_number', 'like', "%{$needle}%");
+                $query->where('name', 'like', "%{$needle}%")
+                      ->orWhere('phone_number', 'like', "%{$needle}%");
             })->whereJsonContains('roles', 'officer')->orderBy('name', 'asc')->paginate($perPage);
         }
         return response(["officers" => $officers]);
@@ -212,7 +230,8 @@ class OfficerController extends Controller
     public function filterOfficersByState($id, $perPage = 20)
     {
         $officers =
-            User::with('lga.state')->whereJsonContains('roles', 'officer')->where('state_id', $id)->paginate($perPage);
+            User::with('lga.state')->whereJsonContains('roles', 'officer')->where('state_id', $id)
+                ->paginate($perPage);
         return response(["officers" => $officers]);
     }
 
@@ -224,13 +243,27 @@ class OfficerController extends Controller
     public function filterOfficersByLGA($id, $perPage = 20)
     {
         $officers =
-            User::with('lga.state')->whereJsonContains('roles', 'officer')->where('lga_id', $id)->paginate($perPage);
+            User::with('lga.state')->whereJsonContains('roles', 'officer')->where('lga_id', $id)
+                ->paginate($perPage);
         return response(["officers" => $officers]);
     }
 
     public function read($id)
     {
-        $officer = User::with('lga.state')->whereJsonContains('roles', 'officer')->where("id", $id)->first();
+        $officer = User::with('lga.state')->whereJsonContains('roles', 'officer')->where("id", $id)
+                       ->first();
         return response(["officer" => $officer]);
+    }
+
+    public function getVotersRegisteredByOfficer($id, $perPage = 20)
+    {
+        $officer = User::find($id);
+        if (!UserHelper::isOfficer($officer)) return response(["officer" => null]);
+        $voters = OfficerRegister::with(['voter.lga.state'])->where('officer_id', $id)
+                                 ->orderBy('created_at', 'desc')->paginate($perPage);
+        return response([
+            "officer" => $officer,
+            "voters"  => $voters
+        ]);
     }
 }
