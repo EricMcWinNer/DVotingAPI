@@ -95,7 +95,7 @@ Route::prefix('/dashboard/election')->group(function ()
         Route::get('/', 'ElectionController@getElection');
 
 
-        Route::middleware(['oValidate'])->group(function ()
+        Route::middleware(['oAuthorize'])->group(function ()
         {
             Route::post('/', 'ElectionController@create')->middleware('eValidate');
 
