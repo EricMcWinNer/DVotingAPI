@@ -31,16 +31,6 @@ class UserController extends Controller
     {
         try
         {
-            $genders = [
-                'male',
-                'female'
-            ];
-            $maritalStatus = [
-                'married',
-                'single',
-                'divorced',
-                'widowed'
-            ];
             $fields = json_decode($request->userInfo, true);
             $URI = $request->path();
             $fields = array_map(function ($value)
@@ -73,10 +63,10 @@ class UserController extends Controller
                 ]);
             }
 
-            $fields["gender"] = $genders[(int)$fields["gender"]];
+            $fields["gender"] = UserHelper::GENDERS[(int)$fields["gender"]];
             $fields["lastName"] = ucwords($fields["lastName"]);
             $fields["otherNames"] = ucwords($fields["otherNames"]);
-            $fields["maritalStatus"] = $maritalStatus[(int)$fields["maritalStatus"]];
+            $fields["maritalStatus"] = UserHelper::MARITALSTATUSES[(int)$fields["maritalStatus"]];
             $profilePicture = null;
             if ($request->hasFile('picture')) $profilePicture =
                 $request->file('picture')->store('profile-picture', 'public');

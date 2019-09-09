@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\LocalGovernment;
+use App\OfficerRegister;
 use App\State;
 use App\User;
 use Carbon\Carbon;
@@ -43,7 +44,10 @@ class VoterController extends Controller
     public function getVoterById($id)
     {
         $voter = User::with('lga.state')->where('id', $id)->first();
-        return response(["voter" => $voter]);
+        $officer = OfficerRegister::with('officer.lga.state')->where('voter_id', $id)->first();
+        return response(["voter"   => $voter,
+                         "officer" => $officer
+        ]);
     }
 
     /**
@@ -60,33 +64,44 @@ class VoterController extends Controller
             {
                 $voters = User::with('lga.state')->where(function ($query) use ($needle)
                 {
-                    $query->where('email', 'like', '%' . $needle . '%')->orWhere('name', 'like', '%' . $needle . '%')
-                          ->orWhere('address1', 'like', '%' . $needle . '%')->orWhere('address2', 'like', '%' .
-                            $needle . '%')->orWhere('marital_status', 'like', '%' . $needle . '%')
-                          ->orWhere('occupation', 'like', '%' . $needle . '%')->orWhere('gender', 'like', '%' .
-                            $needle . '%')->orWhere('phone_number', 'like', '%' . $needle . '%');
-                })->where('state_id', (int)$_GET["filter_value"])->orderBy('name', 'asc')->paginate($perPage);
+                    $query->where('email', 'like', '%' . $needle . '%')
+                          ->orWhere('name', 'like', '%' . $needle . '%')
+                          ->orWhere('address1', 'like', '%' . $needle . '%')
+                          ->orWhere('address2', 'like', '%' . $needle . '%')
+                          ->orWhere('marital_status', 'like', '%' . $needle . '%')
+                          ->orWhere('occupation', 'like', '%' . $needle . '%')
+                          ->orWhere('gender', 'like', '%' . $needle . '%')
+                          ->orWhere('phone_number', 'like', '%' . $needle . '%');
+                })->where('state_id', (int)$_GET["filter_value"])->orderBy('name', 'asc')
+                              ->paginate($perPage);
             }
             else
             {
                 $voters = User::with('lga.state')->where(function ($query) use ($needle)
                 {
-                    $query->where('email', 'like', '%' . $needle . '%')->orWhere('name', 'like', '%' . $needle . '%')
-                          ->orWhere('address1', 'like', '%' . $needle . '%')->orWhere('address2', 'like', '%' .
-                            $needle . '%')->orWhere('marital_status', 'like', '%' . $needle . '%')
-                          ->orWhere('occupation', 'like', '%' . $needle . '%')->orWhere('gender', 'like', '%' .
-                            $needle . '%')->orWhere('phone_number', 'like', '%' . $needle . '%');
-                })->where('lga_id', (int)$_GET["filter_value"])->orderBy('name', 'asc')->paginate($perPage);
+                    $query->where('email', 'like', '%' . $needle . '%')
+                          ->orWhere('name', 'like', '%' . $needle . '%')
+                          ->orWhere('address1', 'like', '%' . $needle . '%')
+                          ->orWhere('address2', 'like', '%' . $needle . '%')
+                          ->orWhere('marital_status', 'like', '%' . $needle . '%')
+                          ->orWhere('occupation', 'like', '%' . $needle . '%')
+                          ->orWhere('gender', 'like', '%' . $needle . '%')
+                          ->orWhere('phone_number', 'like', '%' . $needle . '%');
+                })->where('lga_id', (int)$_GET["filter_value"])->orderBy('name', 'asc')
+                              ->paginate($perPage);
             }
         }
         else
         {
-            $voters =
-                User::with('lga.state')->where('email', 'like', '%' . $needle . '%')->orWhere('name', 'like', '%' .
-                    $needle . '%')->orWhere('address1', 'like', '%' . $needle . '%')->orWhere('address2', 'like', '%' .
-                    $needle . '%')->orWhere('marital_status', 'like', '%' . $needle . '%')
-                    ->orWhere('occupation', 'like', '%' . $needle . '%')->orWhere('gender', 'like', '%' . $needle . '%')
-                    ->orWhere('phone_number', 'like', '%' . $needle . '%')->orderBy('name', 'asc')->paginate($perPage);
+            $voters = User::with('lga.state')->where('email', 'like', '%' . $needle . '%')
+                          ->orWhere('name', 'like', '%' . $needle . '%')
+                          ->orWhere('address1', 'like', '%' . $needle . '%')
+                          ->orWhere('address2', 'like', '%' . $needle . '%')
+                          ->orWhere('marital_status', 'like', '%' . $needle . '%')
+                          ->orWhere('occupation', 'like', '%' . $needle . '%')
+                          ->orWhere('gender', 'like', '%' . $needle . '%')
+                          ->orWhere('phone_number', 'like', '%' . $needle . '%')
+                          ->orderBy('name', 'asc')->paginate($perPage);
         }
         return response(["voters" => $voters]);
 

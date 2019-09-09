@@ -66,6 +66,16 @@ class User extends Authenticatable
         return $this->hasOne(\App\RegistrationPin::class, 'used_by');
     }
 
+    public function officerRegisterFromOfficer()
+    {
+        return $this->hasMany(\App\OfficerRegister::class, 'officer_id');
+    }
+
+    public function officerRegisterFromVoter()
+    {
+        return $this->hasMany(\App\OfficerRegister::class, 'voter_id');
+    }
+
 
     #Accessors and Mutators
 

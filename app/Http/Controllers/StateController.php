@@ -21,18 +21,17 @@ class StateController extends Controller
     public function states()
     {
         $states = State::all();
-        $states = $states->map(function ($state) {
+        $states = $states->map(function (State $state)
+        {
             return [
                 "state_id" => $state->state_id,
-                "name" => $state->name
+                "name"     => $state->name
             ];
         });
-        return response(
-            [
-                "status" => "success",
-                "states" => $states
-            ]
-        );
+        return response([
+            "status" => "success",
+            "states" => $states
+        ]);
     }
 
     /**
@@ -41,16 +40,40 @@ class StateController extends Controller
      */
     public function lgas($id)
     {
-        $lgas = LocalGovernment::where('state_id', $id)->get();
-        $lgas = $lgas->map(function ($lga) {
+        $lgas = LocalGovernment::where('state_id', $id)->orderBy('name', 'asc')->get();
+        $lgas = $lgas->map(function (LocalGovernment $lga)
+        {
             return [
                 "lga_id" => $lga->id,
-                "name" => $lga->name
+                "name"   => $lga->name
             ];
         });
         return response([
             "status" => "success",
-            "lgas" => $lgas
+            "lgas"   => $lgas
+        ]);
+    }
+
+    public function lga()
+    {
+        $lgas = LocalGovernment::orderBy('name', 'asc')->get();
+        return response(["lgas" => $lgas]);
+    }
+
+    public function statesLga($id)
+    {
+        $states = State::all();
+        $lgas = LocalGovernment::where('state_id', $id)->orderBy('name', 'asc')->get();
+        $lgas = $lgas->map(function (LocalGovernment $lga)
+        {
+            return [
+                "lga_id" => $lga->id,
+                "name"   => $lga->name
+            ];
+        });
+        return response([
+            "states" => $states,
+            "lgas"   => $lgas
         ]);
     }
 }
