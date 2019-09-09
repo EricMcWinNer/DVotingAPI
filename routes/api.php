@@ -39,7 +39,11 @@ Route::prefix('/misc')->group(function ()
 {
     Route::get('/states/', 'StateController@states');
 
+    Route::get('/state/{id}', 'StateController@statesLga');
+
     Route::get('/state/{id}/lgas/', 'StateController@lgas');
+
+    Route::get('/lgas', 'StateController@lga');
 
 });
 
@@ -274,7 +278,10 @@ Route::prefix('/dashboard/officers')->group(function ()
 
             Route::get("/filterbylga/{id}/{perPage?}", "OfficerController@filterOfficersByLGA");
 
-            Route::get("/{id}/voters/{perPage?}", "OfficerController@getVotersRegisteredByOfficer");
+            Route::get("/{id}/voters/{perPage?}", "OfficerController@getVotersRegisteredByOfficer")
+                 ->where('perPage', '[0-9]+');
+
+            Route::get('/{id}/voters/search/{searchNeedle}/{perPage?}', 'OfficerController@searchVotersRegisteredByOfficer');
         });
         Route::middleware(['ofAuthorize'])->group(function ()
         {
@@ -284,7 +291,12 @@ Route::prefix('/dashboard/officers')->group(function ()
             Route::get('/voters/{perPage}', 'OfficerVoterController@getRegisteredVoters')
                  ->where('perPage', '[0-9]+');
 
+            Route::get('/voters/search/{searchNeedle}/{perPage?}', 'OfficerVoterController@searchVoters');
+
             Route::get('/voters/{id}/read', 'OfficerVoterController@read')->where('id', '[0-9]+');
+
+            Route::post('/voters/{id}/edit', 'OfficerVoterController@edit')->where('id', '[0-9]+')
+                 ->middleware('oEValidate');
         });
     });
 });

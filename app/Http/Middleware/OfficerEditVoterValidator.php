@@ -2,11 +2,10 @@
 
 namespace App\Http\Middleware;
 
-use App\Utils\Utility;
 use Carbon\Carbon;
 use Closure;
 
-class OfficialValidator
+class OfficerEditVoterValidator
 {
     /**
      * Handle an incoming request.
@@ -76,29 +75,6 @@ class OfficialValidator
         else if (empty($fields["address2"])) return response([
             "isValid" => false,
             "field"   => "address2"
-        ]);
-        else if ($fields["password"] != $fields["confirmPassword"]) return response([
-            "isValid" => false,
-            "field"   => "password"
-        ]);
-        else if (!$request->hasFile('picture'))
-        {
-            if (Utility::validateWebCamBase64($request->picture)) return $next($request);
-            else return response([
-                "isValid" => false,
-                "field"   => $request->picture
-            ]);
-        }
-        else if (!$request->file('picture')->isValid())
-        {
-            return response([
-                "isValid" => false,
-                "field"   => "Profile picture"
-            ]);
-        }
-        else if (!substr($request->file('picture')->getMimeType(), 0, 5) == 'image') return response([
-            "isValid" => false,
-            "field"   => "Profile picture"
         ]);
         else if (Carbon::parse($fields["dob"])->age < 18) return response([
             "isValid" => false,

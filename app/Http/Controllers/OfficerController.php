@@ -259,11 +259,59 @@ class OfficerController extends Controller
     {
         $officer = User::find($id);
         if (!UserHelper::isOfficer($officer)) return response(["officer" => null]);
-        $voters = OfficerRegister::with(['voter.lga.state'])->where('officer_id', $id)
+        $users = OfficerRegister::with(['voter.lga.state'])->where('officer_id', $id)
                                  ->orderBy('created_at', 'desc')->paginate($perPage);
+        $data = collect($users->items())->filter(function ($item)
+        {
+            return !is_null($item->voter);
+        })->map(function ($item)
+        {
+            return $item->voter;
+        });
+        $paginator = new \stdClass();
+        $paginator->data = $data;
+        $paginator->current_page = $users->currentPage();
+        $paginator->last_page = $users->lastPage();
+        $paginator->per_page = $users->perPage();
+        $paginator->total = $users->total();
         return response([
+            "voters" => $paginator,
             "officer" => $officer,
-            "voters"  => $voters
+        ]);
+    }
+
+    public function searchVotersRegisteredByOfficer($id, $searchNeedle, $perPage = 20)
+    {
+        $users = OfficerRegister::with([
+            'voter' => function ($query) use ($searchNeedle)
+            {
+                $query->with('lga.state')->where('name', 'like', "%{$searchNeedle}%")
+                      ->orderBy('name', 'asc');
+            },
+        ])->where('officer_id', $id)->paginate($perPage);
+        $data = collect($users->items())->filter(function ($item)
+        {
+            return !is_null($item->voter);
+        })->map(function ($item)
+        {
+            return $item->voter;
+        });
+
+        if(count($data->toArray()) === 1)
+        {
+            foreach($data as $key)
+            {
+                $data = [$key];
+            }
+        }
+        $paginator = new \stdClass();
+        $paginator->data = $data;
+        $paginator->current_page = $users->currentPage();
+        $paginator->last_page = $users->lastPage();
+        $paginator->per_page = $users->perPage();
+        $paginator->total = $users->total();
+        return response([
+            "voters" => $paginator,
         ]);
     }
 }

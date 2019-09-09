@@ -18,7 +18,8 @@ class Utility
     public static function shortTextifyNumbers(int $number)
     : string
     {
-        if ($number >= 1000000000 && $number < 1000000000000) return round($number / 1000000000) . "B";
+        if ($number >= 1000000000 && $number < 1000000000000) return round($number / 1000000000) .
+            "B";
         else if ($number >= 1000000 && $number < 1000000000) return round($number / 1000000) . "M";
         else if ($number >= 1000 && $number < 1000000) return round($number / 1000) . "K";
         else
@@ -48,14 +49,15 @@ class Utility
         }
         /*$renamedFiles = Storage::disk('public')->files('profile-picture');*/
         return response([
-            "files"      => $files,
-            "extenstion" => $fileSystem->extension($files[0])
+            "files"     => $files,
+            "extension" => $fileSystem->extension($files[0])
         ]);
     }
 
     public static function validateWebCamBase64($string)
     : bool
     {
+        if (is_null($string) || $string == "null") return false;
         $data = explode(",", $string)[1];
         $type = explode(":", explode(";", $string)[0])[1];
         if (base64_encode(base64_decode($data, true)) === $data)

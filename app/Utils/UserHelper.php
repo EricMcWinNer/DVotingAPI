@@ -76,8 +76,8 @@ class UserHelper
     ];
 
     const MARITALSTATUSES = [
-        'married',
         'single',
+        'married',
         'divorced',
         'widowed'
     ];

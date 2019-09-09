@@ -70,7 +70,8 @@ class Kernel extends HttpKernel
         'ofAuthorize'   => \App\Http\Middleware\AuthorizeOnlyOfficers::class,
         'cValidate'     => \App\Http\Middleware\CandidateRegistrationValidator::class,
         'eCValidate'    => \App\Http\Middleware\CandidateUpdateValidator::class,
-        'oValidate'     => \App\Http\Middleware\OfficialValidator::class
+        'oValidate'     => \App\Http\Middleware\OfficialValidator::class,
+        'oEValidate'    => \App\Http\Middleware\OfficerEditVoterValidator::class,
     ];
 
     /**
