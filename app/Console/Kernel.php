@@ -3,6 +3,7 @@
 namespace App\Console;
 
 use App\Election;
+use App\Events\ElectionStarted;
 use Carbon\Carbon;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -39,6 +40,7 @@ class Kernel extends ConsoleKernel
             if (Carbon::now()->greaterThan(Carbon::parse($currentElection->start_date)) && Carbon::now()->lessThan(Carbon::parse($currentElection->end_date)) && $currentElection->status === 'pending') {
                 $currentElection->status = 'ongoing';
                 $currentElection->save();
+                event(new ElectionStarted($currentElection));
             } else if (Carbon::now()->greaterThanOrEqualTo(Carbon::parse($currentElection->end_date))) {
                 $currentElection->status = 'completed';
                 $currentElection->save();

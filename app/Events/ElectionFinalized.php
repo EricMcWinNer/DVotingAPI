@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Event;
+namespace App\Events;
 
-use App\User;
+use App\Election;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Broadcasting\PrivateChannel;
@@ -11,20 +11,20 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
-class OfficialDeleted
+class ElectionFinalized
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $official;
+    public $election;
 
     /**
      * Create a new event instance.
      *
-     * @param User $user
+     * @param Election $election
      */
-    public function __construct(User $user)
+    public function __construct(Election $election)
     {
-        $this->official = $user;
+        $this->election = $election;
     }
 
     /**

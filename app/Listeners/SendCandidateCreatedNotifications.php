@@ -33,8 +33,7 @@ class SendCandidateCreatedNotifications
         $newCandidate = $event->candidate;
         $candidateUser = User::find($newCandidate->user_id);
         $newCandidate->name = $candidateUser->name;
-        $officials = User::whereJsonContains('roles', 'official')
-                         ->get();
+        $officials = User::whereJsonContains('roles', 'official')->get();
         Notification::send($officials, new
         OfficialCandidateCreatedNotification($newCandidate));
         $candidateUser->notify(new CandidateCreatedNotification
