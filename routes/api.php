@@ -65,7 +65,6 @@ Route::prefix('/web/auth')->group(function ()
     Route::post('/officer/register', 'UserController@registerPrivilegedUsers')
          ->middleware('ORValidation');
 
-
 });
 
 
@@ -81,6 +80,22 @@ Route::prefix('/dashboard/home')->group(function ()
 
         Route::get('/user', 'DashboardController@getUser');
 
+    });
+});
+
+
+#USER ROUTES
+
+Route::prefix('/dashboard/user')->group(function ()
+{
+    Route::middleware(['auth.web'])->group(function ()
+    {
+        Route::prefix('/notifications')->group(function ()
+        {
+            Route::get('/', 'NotificationsController@getNotifications');
+
+            Route::get('/readall', 'NotificationsController@readNotifications');
+        });
     });
 });
 

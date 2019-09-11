@@ -15,23 +15,41 @@ class EventServiceProvider extends ServiceProvider
      * @var array
      */
     protected $listen = [
-        Registered::class             => [
+        Registered::class              => [
             SendEmailVerificationNotification::class,
         ],
-        'App\Events\CandidateCreated' => [
+        'App\Events\CandidateCreated'  => [
             'App\Listeners\SendCandidateCreatedNotifications'
         ],
-        'App\Events\OfficialCreated'  => [
+        'App\Events\OfficialCreated'   => [
             'App\Listeners\SendOfficialCreatedNotification'
         ],
-        'App\Event\OfficialDeleted'   => [
+        'App\Events\OfficialDeleted'   => [
             'App\Listeners\SendOfficialDeletedNotification'
         ],
-        'App\Event\OfficerCreated'    => [
+        'App\Events\OfficerCreated'    => [
             'App\Listeners\SendOfficerCreatedNotification'
         ],
-        'App\Event\OfficerDeleted'    => [
+        'App\Events\OfficerDeleted'    => [
             'App\Listeners\SendOfficerDeletedNotification'
+        ],
+        'App\Events\ElectionCreated'   => [
+            'App\Listeners\SendElectionCreatedNotification'
+        ],
+        'App\Events\ElectionStarted'   => [
+            'App\Listeners\SendElectionStartedNotification'
+        ],
+        'App\Events\ElectionCompleted' => [
+            'App\Listeners\SendElectionCompletedNotification'
+        ],
+        'App\Events\ElectionUpdated'   => [
+            'App\Listeners\SendElectionUpdatedNotification'
+        ],
+        'App\Events\ElectionFinalized' => [
+            'App\Listeners\SendElectionFinalizedNotification'
+        ],
+        'App\Events\ElectionDeleted'   => [
+            'App\Listeners\SendElectionDeletedNotification'
         ]
     ];
 
