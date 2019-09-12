@@ -2,26 +2,26 @@
 
 namespace App\Notifications;
 
-use App\Candidate;
+use App\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 
-class CandidateCreatedNotification extends Notification implements ShouldQueue
+class OfficerDeletedNotification extends Notification
 {
     use Queueable;
 
-    protected $candidate;
+    public $officer;
 
     /**
      * Create a new notification instance.
      *
-     * @param Candidate $candidate
+     * @param User $officer
      */
-    public function __construct(Candidate $candidate)
+    public function __construct(User $officer)
     {
-        $this->candidate = $candidate;
+        $this->officer = $officer;
     }
 
     /**
@@ -57,11 +57,11 @@ class CandidateCreatedNotification extends Notification implements ShouldQueue
     public function toArray($notifiable)
     {
         return [
-            "candidate" => $this->candidate,
-            "message"   => $notifiable->id === $this->candidate->user_id ?
-                "You have been made a candidate" : "A new candidate has been created",
-            "icon"      => $this->candidate->candidate_picture,
-            "type"      => "candidate_created"
+            "officer" => $this->officer,
+            "message" => $notifiable->id === $this->officer->id ?
+                "You have been removed from the officer list" : "A new officer has been created",
+            "icon"    => $this->officer->picture,
+            "type"    => "officer_deleted"
         ];
     }
 }

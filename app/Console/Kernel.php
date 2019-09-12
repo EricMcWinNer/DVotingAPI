@@ -3,6 +3,7 @@
 namespace App\Console;
 
 use App\Election;
+use App\Events\ElectionCompleted;
 use App\Events\ElectionStarted;
 use Carbon\Carbon;
 use Illuminate\Console\Scheduling\Schedule;
@@ -16,8 +17,7 @@ class Kernel extends ConsoleKernel
      *
      * @var array
      */
-    protected $commands = [
-        //
+    protected $commands = [//
     ];
 
     /**
@@ -31,21 +31,26 @@ class Kernel extends ConsoleKernel
         // $schedule->command('inspire')
         //          ->hourly();
 
-        $schedule->call(function () {
-            $currentElection = Election::where('status', 'pending')
-                ->orWhere('status', 'ongoing')
-                ->orWhere('status', 'completed')
-                ->orderBy('id', 'desc')
-                ->first();
-            if (Carbon::now()->greaterThan(Carbon::parse($currentElection->start_date)) && Carbon::now()->lessThan(Carbon::parse($currentElection->end_date)) && $currentElection->status === 'pending') {
+        $schedule->call(function ()
+        {
+            $currentElection = Election::where('status', 'pending')->orWhere('status', 'ongoing')
+                                       ->orWhere('status', 'completed')->orderBy('id', 'desc')
+                                       ->first();
+            if (Carbon::now()->greaterThan(Carbon::parse($currentElection->start_date)) &&
+                Carbon::now()->lessThan(Carbon::parse($currentElection->end_date)) &&
+                $currentElection->status === 'pending') {
                 $currentElection->status = 'ongoing';
                 $currentElection->save();
                 event(new ElectionStarted($currentElection));
-            } else if (Carbon::now()->greaterThanOrEqualTo(Carbon::parse($currentElection->end_date))) {
-                $currentElection->status = 'completed';
-                $currentElection->save();
             } else {
-                //DO NOTHING FOR NOW
+                if (Carbon::now()
+                          ->greaterThanOrEqualTo(Carbon::parse($currentElection->end_date))) {
+                    $currentElection->status = 'completed';
+                    event(new ElectionCompleted($currentElection));
+                    $currentElection->save();
+                } else {
+                    //DO NOTHING FOR NOW
+                }
             }
         })->everyMinute()->appendOutputTo("C:\Users\Eric McWinNEr\Desktop\laravelcronoutput.txt");
     }

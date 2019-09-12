@@ -8,7 +8,7 @@ use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 
-class OfficialCandidateCreatedNotification extends Notification
+class CandidateDeletedNotification extends Notification
 {
     use Queueable;
 
@@ -17,7 +17,7 @@ class OfficialCandidateCreatedNotification extends Notification
     /**
      * Create a new notification instance.
      *
-     * @param Candidate $candidate
+     * @return void
      */
     public function __construct(Candidate $candidate)
     {
@@ -27,7 +27,7 @@ class OfficialCandidateCreatedNotification extends Notification
     /**
      * Get the notification's delivery channels.
      *
-     * @param  mixed  $notifiable
+     * @param  mixed $notifiable
      * @return array
      */
     public function via($notifiable)
@@ -38,32 +38,31 @@ class OfficialCandidateCreatedNotification extends Notification
     /**
      * Get the mail representation of the notification.
      *
-     * @param  mixed  $notifiable
+     * @param  mixed $notifiable
      * @return \Illuminate\Notifications\Messages\MailMessage
      */
     public function toMail($notifiable)
     {
-        return (new MailMessage)
-                    ->line('The introduction to the notification.')
-                    ->action('Notification Action', url('/'))
-                    ->line('Thank you for using our application!');
+        return (new MailMessage)->line('The introduction to the notification.')
+                                ->action('Notification Action', url('/'))
+                                ->line('Thank you for using our application!');
     }
 
     /**
      * Get the array representation of the notification.
      *
-     * @param  mixed  $notifiable
+     * @param  mixed $notifiable
      * @return array
      */
     public function toArray($notifiable)
     {
         return [
-            "user_id" => $this->candidate->user_id,
-            "name" => $this->candidate->name,
-            "id" => $this->candidate->id,
-            "picture" => $this->candidate->candidate_picture,
-            "created_at" => $this->candidate->created_at,
-            "message" => "{$this->candidate->name} has been made a candidate",
+            "candidate" => $this->candidate,
+            "message"   => $notifiable->id === $this->candidate->user_id ?
+                "You have been removed from the candidates list" :
+                "A new candidate has been deleted",
+            "icon"      => $this->candidate->candidate_picture,
+            "type"      => "candidate_deleted"
         ];
     }
 }

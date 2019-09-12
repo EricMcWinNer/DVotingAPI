@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Election;
 use Illuminate\Http\Request;
 
 class NotificationsController extends Controller
@@ -10,9 +11,12 @@ class NotificationsController extends Controller
     {
         $user = $request->user();
         $unreadNotificationsCount = count($user->unreadNotifications);
+        $election = Election::where('status', 'pending')->orWhere('status', 'ongoing')
+                            ->orWhere('status', 'completed')->orderBy('id', 'desc')->first();
         $notifications = new \stdClass();
         $notifications->data = $user->notifications;
         $notifications->unreadNotificationsCount = $unreadNotificationsCount;
+        $notifications->election = $election;
         return ([
             "notifications" => $notifications,
         ]);
