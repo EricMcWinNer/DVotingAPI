@@ -8,11 +8,11 @@ use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 
-class CandidateCreatedNotification extends Notification implements ShouldQueue
+class CandidateUpdatedNotification extends Notification
 {
     use Queueable;
 
-    protected $candidate;
+    public $candidate;
 
     /**
      * Create a new notification instance.
@@ -59,9 +59,9 @@ class CandidateCreatedNotification extends Notification implements ShouldQueue
         return [
             "candidate" => $this->candidate,
             "message"   => $notifiable->id === $this->candidate->user_id ?
-                "You have been made a candidate" : "A new candidate has been created",
+                "Your candidate info has been updated" : "A candidate has been updated",
             "icon"      => $this->candidate->candidate_picture,
-            "type"      => "candidate_created"
+            "type"      => "candidate_updated"
         ];
     }
 }

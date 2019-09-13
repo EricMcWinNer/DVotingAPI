@@ -2,14 +2,14 @@
 
 namespace App\Listeners;
 
-use App\Events\ElectionFinalized;
-use App\Notifications\ElectionFinalizedNotification;
+use App\Events\CandidateDeleted;
+use App\Notifications\CandidateDeletedNotification;
 use App\User;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Notification;
 
-class SendElectionFinalizedNotification implements ShouldQueue
+class SendCandidateDeletedNotification implements ShouldQueue
 {
     /**
      * The name of the connection the job should be sent to
@@ -39,6 +39,8 @@ class SendElectionFinalizedNotification implements ShouldQueue
      * @var int
      */
     public $timeout = 300;
+
+
     /**
      * Create the event listener.
      *
@@ -52,12 +54,12 @@ class SendElectionFinalizedNotification implements ShouldQueue
     /**
      * Handle the event.
      *
-     * @param  ElectionFinalized $event
+     * @param  CandidateDeleted $event
      * @return void
      */
-    public function handle(ElectionFinalized $event)
+    public function handle(CandidateDeleted $event)
     {
         $users = User::all();
-        Notification::send($users, new ElectionFinalizedNotification($event->election));
+        Notification::send($users, new CandidateDeletedNotification($event->candidate));
     }
 }

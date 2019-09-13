@@ -2,14 +2,14 @@
 
 namespace App\Listeners;
 
-use App\Events\ElectionFinalized;
-use App\Notifications\ElectionFinalizedNotification;
+use App\Events\OfficerCreated;
+use App\Notifications\OfficerCreatedNotification;
 use App\User;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Notification;
 
-class SendElectionFinalizedNotification implements ShouldQueue
+class SendOfficerCreatedNotification implements ShouldQueue
 {
     /**
      * The name of the connection the job should be sent to
@@ -34,12 +34,6 @@ class SendElectionFinalizedNotification implements ShouldQueue
 
 
     /**
-     * The time (seconds) during which the job would be processed
-     *
-     * @var int
-     */
-    public $timeout = 300;
-    /**
      * Create the event listener.
      *
      * @return void
@@ -52,12 +46,14 @@ class SendElectionFinalizedNotification implements ShouldQueue
     /**
      * Handle the event.
      *
-     * @param  ElectionFinalized $event
+     * @param  OfficerCreated  $event
      * @return void
      */
-    public function handle(ElectionFinalized $event)
+    public function handle(OfficerCreated $event)
     {
-        $users = User::all();
-        Notification::send($users, new ElectionFinalizedNotification($event->election));
+        $users = User::whereJsonContains('roles', 'officer')->get();
+        $user = User::find($event->officer->id);
+        $user->notify(new OfficerCreatedNotification($event->officer));
+        Notification::send($users, new OfficerCreatedNotification($event->officer));
     }
 }

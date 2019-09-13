@@ -19,7 +19,13 @@ class EventServiceProvider extends ServiceProvider
             SendEmailVerificationNotification::class,
         ],
         'App\Events\CandidateCreated'  => [
-            'App\Listeners\SendCandidateCreatedNotifications'
+            'App\Listeners\SendCandidateCreatedNotification'
+        ],
+        'App\Events\CandidateDeleted'  => [
+            'App\Listeners\SendCandidateDeletedNotification'
+        ],
+        'App\Events\CandidateUpdated'  => [
+            'App\Listeners\SendCandidateUpdatedNotification'
         ],
         'App\Events\OfficialCreated'   => [
             'App\Listeners\SendOfficialCreatedNotification'
@@ -46,10 +52,12 @@ class EventServiceProvider extends ServiceProvider
             'App\Listeners\SendElectionUpdatedNotification'
         ],
         'App\Events\ElectionFinalized' => [
-            'App\Listeners\SendElectionFinalizedNotification'
+            'App\Listeners\SendElectionFinalizedNotification',
+            'App\Listeners\CleanUpElection'
         ],
         'App\Events\ElectionDeleted'   => [
-            'App\Listeners\SendElectionDeletedNotification'
+            'App\Listeners\SendElectionDeletedNotification',
+            'App\Listeners\CleanUpElection'
         ]
     ];
 

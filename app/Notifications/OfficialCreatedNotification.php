@@ -2,26 +2,26 @@
 
 namespace App\Notifications;
 
-use App\Candidate;
+use App\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 
-class CandidateCreatedNotification extends Notification implements ShouldQueue
+class OfficialCreatedNotification extends Notification
 {
     use Queueable;
 
-    protected $candidate;
+    public $official;
 
     /**
      * Create a new notification instance.
      *
-     * @param Candidate $candidate
+     * @param User $official
      */
-    public function __construct(Candidate $candidate)
+    public function __construct(User $official)
     {
-        $this->candidate = $candidate;
+        $this->official = $official;
     }
 
     /**
@@ -57,11 +57,11 @@ class CandidateCreatedNotification extends Notification implements ShouldQueue
     public function toArray($notifiable)
     {
         return [
-            "candidate" => $this->candidate,
-            "message"   => $notifiable->id === $this->candidate->user_id ?
-                "You have been made a candidate" : "A new candidate has been created",
-            "icon"      => $this->candidate->candidate_picture,
-            "type"      => "candidate_created"
+            "official" => $this->official,
+            "message"  => $notifiable->id === $this->official->id ? "You have been made an 
+            official" : "A new official has been created",
+            "icon"     => $this->official->picture,
+            "type"     => "official_created"
         ];
     }
 }
