@@ -27,7 +27,7 @@ class ElectionValidation
                 return response(["isValid" => false, "field" => "startDate"]);
             else if (empty($request->end_date))
                 return response(["isValid" => false, "field" => "endDate"]);
-            else if ($startDate->setTimezone("+01:00")->lessThan(Carbon::today("+01:00")))
+            else if ($startDate->setTimezone("+01:00")->lessThan(Carbon::now("+01:00")->addHour()))
                 return response(["isValid" => false, "field" => "smallStartDate"]);
             /*else if ((int)$startDate->format('i') !== 0 && (int)$startDate->format('i') % 10 !== 0)
                 return response(["isValid" => false, "field" => "startDateNotTens"]);

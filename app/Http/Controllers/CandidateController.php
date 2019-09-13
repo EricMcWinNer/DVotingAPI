@@ -81,7 +81,6 @@ class CandidateController extends Controller
                                 }
                                 $user->save();
                                 $candidate->save();
-                                event(new CandidateCreated($candidate));
                             } catch (\Illuminate\Database\QueryException $e) {
                                 Storage::disk('public')->delete($candidatePicture);
                                 return response(["db_error" => $e->getMessage()]);

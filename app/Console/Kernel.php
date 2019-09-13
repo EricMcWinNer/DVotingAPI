@@ -45,9 +45,16 @@ class Kernel extends ConsoleKernel
             } else {
                 if (Carbon::now()
                           ->greaterThanOrEqualTo(Carbon::parse($currentElection->end_date))) {
-                    $currentElection->status = 'completed';
-                    event(new ElectionCompleted($currentElection));
-                    $currentElection->save();
+                    if ($currentElection->status !== 'completed')
+                    {
+                        $currentElection->status = 'completed';
+                        $currentElection->save();
+                        event(new ElectionCompleted($currentElection));
+                    }
+                    else
+                    {
+                        //Do nothing for now
+                    }
                 } else {
                     //DO NOTHING FOR NOW
                 }

@@ -17,7 +17,7 @@ class CandidateDeletedNotification extends Notification
     /**
      * Create a new notification instance.
      *
-     * @return void
+     * @param Candidate $candidate
      */
     public function __construct(Candidate $candidate)
     {
