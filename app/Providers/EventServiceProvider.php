@@ -52,12 +52,12 @@ class EventServiceProvider extends ServiceProvider
             'App\Listeners\SendElectionUpdatedNotification'
         ],
         'App\Events\ElectionFinalized' => [
+            'App\Listeners\CleanUpElection',
             'App\Listeners\SendElectionFinalizedNotification',
-            'App\Listeners\CleanUpElection'
         ],
         'App\Events\ElectionDeleted'   => [
+            'App\Listeners\CleanUpElection',
             'App\Listeners\SendElectionDeletedNotification',
-            'App\Listeners\CleanUpElection'
         ]
     ];
 

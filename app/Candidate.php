@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class Candidate extends Model
 {
 
+    protected $touches = ['user'];
+
     public function party()
     {
         return $this->belongsTo(\App\Party::class);

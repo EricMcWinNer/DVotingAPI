@@ -23,7 +23,7 @@ class SendCandidateUpdatedNotification implements ShouldQueue
      *
      * @var string|null
      */
-    public $queue = 'listeners';
+    public $queue = 'candidate_listeners';
 
     /**
      *  The time (seconds) before the job should be processed.
@@ -58,7 +58,9 @@ class SendCandidateUpdatedNotification implements ShouldQueue
      */
     public function handle(CandidateUpdated $event)
     {
-        $users = User::all();
+        $users = User::whereJsonContains('roles', "official")->get();
+        User::find($event->candidate->user_id)
+            ->notify(new CandidateUpdatedNotification($event->candidate));
         Notification::send($users, new CandidateUpdatedNotification($event->candidate));
     }
 }

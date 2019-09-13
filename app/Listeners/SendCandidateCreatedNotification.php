@@ -5,11 +5,14 @@ namespace App\Listeners;
 use App\Events\CandidateCreated;
 use App\Notifications\CandidateCreatedNotification;
 use App\User;
+use App\Utils\UserHelper;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Notification;
 
-class SendCandidateCreatedNotification implements ShouldQueue
+class SendCandidateCreatedNotification
+    implements
+    ShouldQueue
 {
     /**
      * The name of the connection the job should be sent to
@@ -23,7 +26,7 @@ class SendCandidateCreatedNotification implements ShouldQueue
      *
      * @var string|null
      */
-    public $queue = 'listeners';
+    public $queue = 'candidate_listeners';
 
     /**
      *  The time (seconds) before the job should be processed.
@@ -58,7 +61,9 @@ class SendCandidateCreatedNotification implements ShouldQueue
      */
     public function handle(CandidateCreated $event)
     {
-        $users = User::all();
+        $users = User::whereJsonContains('roles', "official")->get();
+        User::find($event->candidate->user_id)
+            ->notify(new CandidateCreatedNotification($event->candidate));
         Notification::send($users, new CandidateCreatedNotification($event->candidate));
     }
 }

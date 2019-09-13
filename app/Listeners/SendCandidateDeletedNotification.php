@@ -23,7 +23,7 @@ class SendCandidateDeletedNotification implements ShouldQueue
      *
      * @var string|null
      */
-    public $queue = 'listeners';
+    public $queue = 'candidate_listeners';
 
     /**
      *  The time (seconds) before the job should be processed.
@@ -59,7 +59,9 @@ class SendCandidateDeletedNotification implements ShouldQueue
      */
     public function handle(CandidateDeleted $event)
     {
-        $users = User::all();
+        $users = User::whereJsonContains('roles', "official")->get();
+        User::find($event->candidate->user_id)
+            ->notify(new CandidateDeletedNotification($event->candidate));
         Notification::send($users, new CandidateDeletedNotification($event->candidate));
     }
 }

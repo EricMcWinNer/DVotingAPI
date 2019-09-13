@@ -3,13 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Election;
+use App\User;
 use Illuminate\Http\Request;
 
 class NotificationsController extends Controller
 {
-    public function getNotifications(Request $request)
+    private function returnNotifications(User $user)
+    : \stdClass
     {
-        $user = $request->user();
         $unreadNotificationsCount = count($user->unreadNotifications);
         $election = Election::where('status', 'pending')->orWhere('status', 'ongoing')
                             ->orWhere('status', 'completed')->orderBy('id', 'desc')->first();
@@ -17,6 +18,12 @@ class NotificationsController extends Controller
         $notifications->data = $user->notifications;
         $notifications->unreadNotificationsCount = $unreadNotificationsCount;
         $notifications->election = $election;
+        return $notifications;
+    }
+
+    public function getNotifications(Request $request)
+    {
+        $notifications = $this->returnNotifications($request->user());
         return ([
             "notifications" => $notifications,
         ]);
@@ -26,6 +33,10 @@ class NotificationsController extends Controller
     {
         $user = $request->user();
         $user->unreadNotifications->markAsRead();
-        return response(["completed" => true]);
+        $notifications = $this->returnNotifications($user);
+        return response([
+            "completed"     => true,
+            "notifications" => $notifications
+        ]);
     }
 }

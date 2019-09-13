@@ -3,6 +3,7 @@
 namespace App\Listeners;
 
 use App\Events\ElectionDeleted;
+use App\User;
 use App\Utils\UserHelper;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -21,7 +22,7 @@ class CleanUpElection implements ShouldQueue
      *
      * @var string|null
      */
-    public $queue = 'listeners';
+    public $queue = 'election_listeners';
 
     /**
      *  The time (seconds) before the job should be processed.
@@ -51,19 +52,18 @@ class CleanUpElection implements ShouldQueue
     /**
      * Handle the event.
      *
-     * @param  ElectionDeleted  $event
+     * @param  ElectionDeleted $event
      * @return void
      */
     public function handle(ElectionDeleted $event)
     {
         $election = $event->election;
-        $users = $election->candidates();
-        foreach($users as $user)
-        {
+        $candidates = $election->candidates();
+        $users = User::whereJsonContains('roles', 'candidate')->get();
+        foreach ($users as $user) {
             $user = UserHelper::makeVoter($user);
             $user->save();
         }
-        $users->delete();
-
+        $candidates->delete();
     }
 }
