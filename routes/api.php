@@ -20,13 +20,12 @@ use Illuminate\Support\Facades\Storage;
 
 
 #TEST ROUTES
-Route::prefix('/test')->group(function ()
-{
+Route::prefix('/test')->group(function () {
     Route::get('election/create', 'ElectionController@autoGenerate')
-         ->middleware('auth.web', 'oAuthorize');
+        ->middleware('auth.web', 'oAuthorize');
 
     Route::get('/pins/create/{count}', 'RegistrationPinController@makePins')
-         ->middleware('auth.web', 'oAuthorize');
+        ->middleware('auth.web', 'oAuthorize');
 
 
 });
@@ -35,8 +34,7 @@ Route::prefix('/test')->group(function ()
 #REGISTRATION ROUTES
 
 
-Route::prefix('/misc')->group(function ()
-{
+Route::prefix('/misc')->group(function () {
     Route::get('/states/', 'StateController@states');
 
     Route::get('/state/{id}', 'StateController@statesLga');
@@ -51,8 +49,7 @@ Route::prefix('/misc')->group(function ()
 #AUTHENTICATION ROUTES
 
 
-Route::prefix('/web/auth')->group(function ()
-{
+Route::prefix('/web/auth')->group(function () {
     Route::get('/validate-web-app-session', 'AuthenticationController@validateWebAppCookie');
 
     Route::get('/logout', 'AuthenticationController@logoutWebApp');
@@ -60,10 +57,10 @@ Route::prefix('/web/auth')->group(function ()
     Route::post('/login', 'AuthenticationController@authenticate');
 
     Route::post('/official/register', 'UserController@registerPrivilegedUsers')
-         ->middleware('ORValidation');
+        ->middleware('ORValidation');
 
     Route::post('/officer/register', 'UserController@registerPrivilegedUsers')
-         ->middleware('ORValidation');
+        ->middleware('ORValidation');
 
 });
 
@@ -71,11 +68,9 @@ Route::prefix('/web/auth')->group(function ()
 #DASHBOARD HOME ROUTES
 
 
-Route::prefix('/dashboard/home')->group(function ()
-{
+Route::prefix('/dashboard/home')->group(function () {
 
-    Route::middleware(['auth.web'])->group(function ()
-    {
+    Route::middleware(['auth.web'])->group(function () {
         Route::get('/', 'DashboardController@initializeHomePage');
 
         Route::get('/user', 'DashboardController@getUser');
@@ -86,12 +81,9 @@ Route::prefix('/dashboard/home')->group(function ()
 
 #USER ROUTES
 
-Route::prefix('/dashboard/user')->group(function ()
-{
-    Route::middleware(['auth.web'])->group(function ()
-    {
-        Route::prefix('/notifications')->group(function ()
-        {
+Route::prefix('/dashboard/user')->group(function () {
+    Route::middleware(['auth.web'])->group(function () {
+        Route::prefix('/notifications')->group(function () {
             Route::get('/', 'NotificationsController@getNotifications');
 
             Route::get('/readall', 'NotificationsController@readNotifications');
@@ -103,15 +95,11 @@ Route::prefix('/dashboard/user')->group(function ()
 #ELECTION ROUTES
 
 
-Route::prefix('/dashboard/election')->group(function ()
-{
-    Route::middleware(['auth.web'])->group(function ()
-    {
+Route::prefix('/dashboard/election')->group(function () {
+    Route::middleware(['auth.web'])->group(function () {
         Route::get('/', 'ElectionController@getElection');
 
-
-        Route::middleware(['oAuthorize'])->group(function ()
-        {
+        Route::middleware(['oAuthorize'])->group(function () {
             Route::post('/', 'ElectionController@create')->middleware('eValidate');
 
             Route::delete('/', 'ElectionController@delete');
@@ -127,10 +115,8 @@ Route::prefix('/dashboard/election')->group(function ()
 
 #PARTY ROUTES
 
-Route::prefix('/dashboard/party')->group(function ()
-{
-    Route::middleware(['auth.web'])->group(function ()
-    {
+Route::prefix('/dashboard/party')->group(function () {
+    Route::middleware(['auth.web'])->group(function () {
         Route::get('/all/{perPage?}', 'PartyController@getParties');
 
         Route::get('/{id}', 'PartyController@getParty')->where('id', '[0-9]+');
@@ -138,14 +124,13 @@ Route::prefix('/dashboard/party')->group(function ()
         Route::get('/search/{needle}/{perPage?}', 'PartyController@search');
 
 
-        Route::middleware(['oAuthorize'])->group(function ()
-        {
+        Route::middleware(['oAuthorize'])->group(function () {
             Route::post('/', 'PartyController@create')->middleware('pValidate');
 
             Route::delete('/{id}', 'PartyController@deleteParty')->where('id', '[0-9]+');
 
             Route::post('/{id}/edit', 'PartyController@updateParty')->where('id', '[0-9]+')
-                 ->middleware('pValidate');
+                ->middleware('pValidate');
         });
 
     });
@@ -155,13 +140,11 @@ Route::prefix('/dashboard/party')->group(function ()
 #VOTERS ROUTES
 
 
-Route::prefix('/dashboard/voters')->group(function ()
-{
+Route::prefix('/dashboard/voters')->group(function () {
     Route::middleware([
         'auth.web',
         'oAuthorize'
-    ])->group(function ()
-    {
+    ])->group(function () {
         Route::get('/create/{count}', 'UserController@makeVoters');
 
         Route::get('/list/{perPage?}', 'VoterController@index');
@@ -183,18 +166,15 @@ Route::prefix('/dashboard/voters')->group(function ()
 #CANDIDATES ROUTES
 
 
-Route::prefix('/dashboard/candidates')->group(function ()
-{
-    Route::middleware(['auth.web'])->group(function ()
-    {
+Route::prefix('/dashboard/candidates')->group(function () {
+    Route::middleware(['auth.web'])->group(function () {
         Route::get('/list/{perPage?}', 'CandidateController@index');
 
         Route::get('/{id}', 'CandidateController@read')->where('id', '[0-9]+');
 
         Route::get('/search/{perPage?}/{needle}', 'CandidateController@search');
 
-        Route::middleware(['oAuthorize'])->group(function ()
-        {
+        Route::middleware(['oAuthorize'])->group(function () {
             Route::post('/{userId}/create', 'CandidateController@create')->middleware('cValidate');
 
             Route::get('/make', 'CandidateController@makeCandidate');
@@ -222,15 +202,13 @@ Route::prefix('/dashboard/candidates')->group(function ()
 #OFFICIAL ROUTES
 
 
-Route::prefix('/dashboard/officials')->group(function ()
-{
+Route::prefix('/dashboard/officials')->group(function () {
     Route::middleware([
         'auth.web',
         'oAuthorize'
-    ])->group(function ()
-    {
+    ])->group(function () {
         Route::get('/create/{perPage?}', 'OfficialController@getEligibleOfficials')
-             ->where('perPage', '[0-9]+');
+            ->where('perPage', '[0-9]+');
 
         Route::get('/create/search/{needle}/{perPage?}', 'OfficialController@searchEligibleOfficials');
 
@@ -262,16 +240,13 @@ Route::prefix('/dashboard/officials')->group(function ()
 #OFFICER ROUTES
 
 
-Route::prefix('/dashboard/officers')->group(function ()
-{
-    Route::middleware(['auth.web'])->group(function ()
-    {
-        Route::middleware(['oAuthorize'])->group(function ()
-        {
+Route::prefix('/dashboard/officers')->group(function () {
+    Route::middleware(['auth.web'])->group(function () {
+        Route::middleware(['oAuthorize'])->group(function () {
             Route::get("/index/{perPage?}", "OfficerController@index")->where("perPage", "[0-9]+");
 
             Route::get("/create/{perPage?}", "OfficerController@getEligibleOfficers")
-                 ->where('perPage', '[0-9]+');
+                ->where('perPage', '[0-9]+');
 
             Route::get("/create/search/{needle}/{perPage?}", "OfficerController@searchEligibleOfficers");
 
@@ -294,24 +269,23 @@ Route::prefix('/dashboard/officers')->group(function ()
             Route::get("/filterbylga/{id}/{perPage?}", "OfficerController@filterOfficersByLGA");
 
             Route::get("/{id}/voters/{perPage?}", "OfficerController@getVotersRegisteredByOfficer")
-                 ->where('perPage', '[0-9]+');
+                ->where('perPage', '[0-9]+');
 
             Route::get('/{id}/voters/search/{searchNeedle}/{perPage?}', 'OfficerController@searchVotersRegisteredByOfficer');
         });
-        Route::middleware(['ofAuthorize'])->group(function ()
-        {
+        Route::middleware(['ofAuthorize'])->group(function () {
             Route::post('/register', 'OfficerVoterController@registerVoter')
-                 ->middleware('ORValidation');
+                ->middleware('ORValidation');
 
             Route::get('/voters/{perPage}', 'OfficerVoterController@getRegisteredVoters')
-                 ->where('perPage', '[0-9]+');
+                ->where('perPage', '[0-9]+');
 
             Route::get('/voters/search/{searchNeedle}/{perPage?}', 'OfficerVoterController@searchVoters');
 
             Route::get('/voters/{id}/read', 'OfficerVoterController@read')->where('id', '[0-9]+');
 
             Route::post('/voters/{id}/edit', 'OfficerVoterController@edit')->where('id', '[0-9]+')
-                 ->middleware('oEValidate');
+                ->middleware('oEValidate');
         });
     });
 });
@@ -320,21 +294,29 @@ Route::prefix('/dashboard/officers')->group(function ()
 #REGISTRATION PIN ROUTES
 
 
-Route::prefix('/dashboard/pins')->group(function ()
-{
+Route::prefix('/dashboard/pins')->group(function () {
     Route::middleware([
         'auth.web',
         'oAuthorize'
-    ])->group(function ()
-    {
+    ])->group(function () {
         Route::get('/{perPage?}', 'RegistrationPinController@index')->where('perPage', '[0-9]+');
 
         Route::get('/officers/{count}/make', 'RegistrationPinController@makeOfficerPins')
-             ->where('count', '[0-9]+');
+            ->where('count', '[0-9]+');
 
         Route::get('/officials/{count}/make', 'RegistrationPinController@makeOfficialPins')
-             ->where('count', '[0-9]+');
+            ->where('count', '[0-9]+');
 
+    });
+});
+
+
+#VOTE ROUTES
+
+
+Route::prefix('/dashboard/vote')->group(function () {
+    Route::middleware(['auth.web'])->group(function () {
+       Route::get('/', 'VoteController@initializeVotesPage');
     });
 });
 

@@ -39,13 +39,13 @@ class AuthenticationController extends Controller
                     $token->addClaim(new Expiration(new \DateTime('1 day')));
                     $cookie = $jwt->serialize($token, $encryption);
                     $time = time() + 60 * 60 * 24;
-                    return response(["isValid" => "true"])->cookie('jwt', $cookie, $time, "/");
+                    return response(["isValid" => "true"])->cookie('jwt', $cookie, $time, "/", null, null, true);
                 } else {
                     return $this->basicAuth($credentials);
                 }
             } catch (VerificationException $e) {
                 Log::debug($e->getMessage());
-                $this->basicAuth($credentials);
+                return $this->basicAuth($credentials);
             }
         } else {
             return $this->basicAuth($credentials);
@@ -54,13 +54,16 @@ class AuthenticationController extends Controller
 
     private function basicAuth($credentials)
     {
+        Log::debug($credentials);
         if (Auth::once($credentials)) {
+            Log::debug("yieep");
             $serializedToken = $this->generateJwt(Auth::user());
+            Log::debug($serializedToken);
             $time = time() + 60 * 60 * 24;
-            return response(["isValid" => "true"])->cookie('jwt', $serializedToken, $time, "/");
+            return response(["isValid" => "true"])->cookie('jwt', $serializedToken, $time, "/", null, null, true);
         } else {
             return response([
-                "status"  => "error",
+                "status" => "error",
                 "message" => "invalidCredentials"
             ]);
         }
@@ -84,7 +87,7 @@ class AuthenticationController extends Controller
                     $token->addClaim(new Expiration(new \DateTime('1 day')));
                     $cookie = $jwt->serialize($token, $encryption);
                     $time = time() + 60 * 60 * 24;
-                    return response(["isSessionValid" => "true"])->cookie('jwt', $cookie, $time, "/");
+                    return response(["isSessionValid" => "true"])->cookie('jwt', $cookie, $time, "/", null, null, true);
                 } else {
                     return response(["isSessionValid" => "false"]);
                 }
@@ -103,8 +106,7 @@ class AuthenticationController extends Controller
         return response(["success" => "true"])->cookie(Cookie::forget("jwt"));
     }
 
-    public function generateJwt(User $user)
-    : string
+    public function generateJwt(User $user): string
     {
         $token = new Token();
         $token->addClaim(new Audience([env('FRONTEND_ENDPOINT')]));
