@@ -26,7 +26,9 @@ class CandidateController extends Controller
      */
     public function index($perPage = 20)
     {
-        $candidates = Candidate::with('party')->orderBy('party_name', 'asc')->orderBy('role', 'asc')
+        $candidates = Candidate::with('party')
+                               ->orderBy('party_name', 'asc')
+                               ->orderBy('role', 'asc')
                                ->paginate($perPage);
         return response([
             "candidates" => $candidates,
@@ -42,12 +44,16 @@ class CandidateController extends Controller
     public function create(Request $request, $userId)
     {
         $user = User::find($userId);
-        $election = Election::where('status', 'pending')->orderBy('id', 'desc')->first();
+        $election = Election::where('status', 'pending')
+                            ->orderBy('id', 'desc')
+                            ->first();
         $party = Party::find($request->party_id);
         if (is_null($user)) {
             return $this->returnError("userNotExist");
         } else {
-            if (!UserHelper::isOnlyVoter($user)) {
+            if (UserHelper::isCandidate($user)) {
+                return $this->returnError("alreadyCandidate");
+            } else if (!UserHelper::isOnlyVoter($user)) {
                 return $this->returnError("officialCantBeCandidate");
             } else {
                 if (is_null($election)) {
@@ -72,7 +78,8 @@ class CandidateController extends Controller
                                 $candidate->election_id = $election->id;
                                 $candidate->party_name = $party->name;
                                 $user = UserHelper::makeCandidate($user);
-                                foreach (Candidate::where('election_id', $election->id)->cursor() as
+                                foreach (Candidate::where('election_id', $election->id)
+                                                  ->cursor() as
                                          $existingCandidate) {
                                     if ($existingCandidate->role == $candidate->role &&
                                         $existingCandidate->party_id == $candidate->party_id) {
@@ -82,10 +89,12 @@ class CandidateController extends Controller
                                 $user->save();
                                 $candidate->save();
                             } catch (\Illuminate\Database\QueryException $e) {
-                                Storage::disk('public')->delete($candidatePicture);
+                                Storage::disk('public')
+                                       ->delete($candidatePicture);
                                 return response(["db_error" => $e->getMessage()]);
                             } catch (\Exception $e) {
-                                Storage::disk('public')->delete($candidatePicture);
+                                Storage::disk('public')
+                                       ->delete($candidatePicture);
                                 throw $e;
                             }
                             event(new CandidateCreated($candidate));
@@ -103,7 +112,9 @@ class CandidateController extends Controller
      */
     public function read($id)
     {
-        $candidate = Candidate::with('party')->where('id', $id)->first();
+        $candidate = Candidate::with('party')
+                              ->where('id', $id)
+                              ->first();
         if (is_null($candidate)) {
             return response(["candidate" => null]);
         }
@@ -122,7 +133,9 @@ class CandidateController extends Controller
         if (is_null($candidate)) {
             return $this->returnError("candidateNotExist");
         } else {
-            $election = Election::where('status', 'pending')->orderBy('id', 'desc')->first();
+            $election = Election::where('status', 'pending')
+                                ->orderBy('id', 'desc')
+                                ->first();
             $party = Party::find($request->party_id);
             if (is_null($election)) {
                 return $this->returnError("noPendingElection");
@@ -141,7 +154,8 @@ class CandidateController extends Controller
                         $candidate->role = $request->role;
                         $candidate->election_id = $election->id;
                         $candidate->party_name = $party->name;
-                        foreach (Candidate::where('election_id', $election->id)->cursor() as
+                        foreach (Candidate::where('election_id', $election->id)
+                                          ->cursor() as
                                  $existingCandidate) {
                             if ($existingCandidate->role == $candidate->role &&
                                 $existingCandidate->party_id == $candidate->party_id &&
@@ -151,10 +165,12 @@ class CandidateController extends Controller
                         }
                         $candidate->save();
                     } catch (\Illuminate\Database\QueryException $e) {
-                        Storage::disk('public')->delete($candidatePicture);
+                        Storage::disk('public')
+                               ->delete($candidatePicture);
                         return response(["db_error" => $e->getMessage()]);
                     } catch (\Exception $e) {
-                        Storage::disk('public')->delete($candidatePicture);
+                        Storage::disk('public')
+                               ->delete($candidatePicture);
                         throw $e;
                     }
                     return response(["completed" => true]);
@@ -196,10 +212,12 @@ class CandidateController extends Controller
      */
     public function search($perPage = 20, $needle)
     {
-        $candidates = Candidate::with('party')->where('name', 'like', "%{$needle}%")
+        $candidates = Candidate::with('party')
+                               ->where('name', 'like', "%{$needle}%")
                                ->orWhere('role', 'like', "%{$needle}%")
                                ->orWhere('party_name', 'like', "%{$needle}%")
-                               ->orderBy('name', 'asc')->paginate($perPage);
+                               ->orderBy('name', 'asc')
+                               ->paginate($perPage);
         return response([
             "candidates" => $candidates,
         ]);
@@ -211,17 +229,21 @@ class CandidateController extends Controller
      */
     public function indexNonCandidates($perPage = 20)
     {
-        $users = User::with('lga.state')->whereJsonDoesntContain('roles', 'candidate')
+        $users = User::with('lga.state')
+                     ->whereJsonDoesntContain('roles', 'candidate')
                      ->whereJsonDoesntContain('roles', 'official')
-                     ->whereJsonDoesntContain('roles', 'officer')->orderBy('name', 'asc')
+                     ->whereJsonDoesntContain('roles', 'officer')
+                     ->orderBy('name', 'asc')
                      ->paginate($perPage);
         if (!isset($_GET["page"])) {
             $states = State::all();
-            $lgas = LocalGovernment::with('state')->orderBy('name', 'asc')->get();
+            $lgas = LocalGovernment::with('state')
+                                   ->orderBy('name', 'asc')
+                                   ->get();
             return response([
-                "users"  => $users,
+                "users" => $users,
                 "states" => $states,
-                "lgas"   => $lgas,
+                "lgas" => $lgas,
             ]);
         }
         return response([
@@ -236,9 +258,11 @@ class CandidateController extends Controller
      */
     public function nonCandidatesState($id, $perPage = 20)
     {
-        $users = User::with('lga.state')->where('state_id', $id)
+        $users = User::with('lga.state')
+                     ->where('state_id', $id)
                      ->whereJsonDoesntContain('roles', 'candidate')
-                     ->whereJsonDoesntContain('roles', 'official')->orderBy('name', 'asc')
+                     ->whereJsonDoesntContain('roles', 'official')
+                     ->orderBy('name', 'asc')
                      ->paginate($perPage);
         return response(["users" => $users]);
     }
@@ -250,9 +274,11 @@ class CandidateController extends Controller
      */
     public function nonCandidatesLga($id, $perPage = 20)
     {
-        $users = User::with('lga.state')->where('lga_id', $id)
+        $users = User::with('lga.state')
+                     ->where('lga_id', $id)
                      ->whereJsonDoesntContain('roles', 'candidate')
-                     ->whereJsonDoesntContain('roles', 'official')->orderBy('name', 'asc')
+                     ->whereJsonDoesntContain('roles', 'official')
+                     ->orderBy('name', 'asc')
                      ->paginate($perPage);
         return response(["users" => $users]);
     }
@@ -267,33 +293,41 @@ class CandidateController extends Controller
         $users = null;
         if (isset($_GET["filter_by"])) {
             if ($_GET["filter_by"] == "state") {
-                $users = User::with('lga.state')->where(function ($query) use ($search)
-                {
-                    $query->where('name', 'like', '%' . $search . '%')
-                          ->orWhere('gender', 'like', '%' . $search . '%')
-                          ->orWhere('marital_status', 'like', '%' . $search . '%');
-                })->where('state_id', (int)$_GET["filter_value"])
+                $users = User::with('lga.state')
+                             ->where(function ($query) use ($search) {
+                                 $query->where('name', 'like', '%' . $search . '%')
+                                       ->orWhere('gender', 'like', '%' . $search . '%')
+                                       ->orWhere('marital_status', 'like', '%' . $search . '%');
+                             })
+                             ->where('state_id', (int)$_GET["filter_value"])
                              ->whereJsonDoesntContain('roles', 'candidate')
-                             ->whereJsonDoesntContain('roles', 'official')->orderBy('name', 'asc')
+                             ->whereJsonDoesntContain('roles', 'official')
+                             ->orderBy('name', 'asc')
                              ->paginate($perPage);
             } else {
-                $users = User::with('lga.state')->where(function ($query) use ($search)
-                {
-                    $query->where('name', 'like', '%' . $search . '%')
-                          ->orWhere('gender', 'like', '%' . $search . '%')
-                          ->orWhere('marital_status', 'like', '%' . $search . '%');
-                })->where('lga_id', (int)$_GET["filter_value"])
+                $users = User::with('lga.state')
+                             ->where(function ($query) use ($search) {
+                                 $query->where('name', 'like', '%' . $search . '%')
+                                       ->orWhere('gender', 'like', '%' . $search . '%')
+                                       ->orWhere('marital_status', 'like', '%' . $search . '%');
+                             })
+                             ->where('lga_id', (int)$_GET["filter_value"])
                              ->whereJsonDoesntContain('roles', 'candidate')
-                             ->whereJsonDoesntContain('roles', 'official')->orderBy('name', 'asc')
+                             ->whereJsonDoesntContain('roles', 'official')
+                             ->orderBy('name', 'asc')
                              ->paginate($perPage);
             }
         } else {
-            $users = User::with('lga.state')->where(function ($query) use ($search)
-            {
-                $query->where('name', 'like', '%' . $search . '%')->orWhere('gender', 'like', '%' .
-                    $search . '%')->orWhere('marital_status', 'like', '%' . $search . '%');
-            })->whereJsonDoesntContain('roles', 'official')
-                         ->whereJsonDoesntContain('roles', 'candidate')->paginate($perPage);
+            $users = User::with('lga.state')
+                         ->where(function ($query) use ($search) {
+                             $query->where('name', 'like', '%' . $search . '%')
+                                   ->orWhere('gender', 'like', '%' .
+                                       $search . '%')
+                                   ->orWhere('marital_status', 'like', '%' . $search . '%');
+                         })
+                         ->whereJsonDoesntContain('roles', 'official')
+                         ->whereJsonDoesntContain('roles', 'candidate')
+                         ->paginate($perPage);
         }
         return response(["users" => $users]);
     }
@@ -304,17 +338,21 @@ class CandidateController extends Controller
      */
     public function initCreate($id)
     {
-        $election = Election::where('status', 'pending')->orWhere('status', 'ongoing')
-                            ->orWhere('status', 'completed')->orderBy('id', 'desc')->first();
+        $election = Election::where('status', 'pending')
+                            ->orWhere('status', 'ongoing')
+                            ->orWhere('status', 'completed')
+                            ->orderBy('id', 'desc')
+                            ->first();
         $user = User::find($id);
         if (is_null($user)) {
             return response(["user" => null]);
         }
-        $parties = Party::orderBy('name', 'asc')->get();
+        $parties = Party::orderBy('name', 'asc')
+                        ->get();
         return response([
             "election" => $election,
-            "user"     => $user,
-            "parties"  => $parties
+            "user" => $user,
+            "parties" => $parties
         ]);
     }
 
@@ -324,17 +362,23 @@ class CandidateController extends Controller
      */
     public function initEdit($id)
     {
-        $election = Election::where('status', 'pending')->orWhere('status', 'ongoing')
-                            ->orWhere('status', 'completed')->orderBy('id', 'desc')->first();
-        $parties = Party::orderBy('name', 'asc')->get();
-        $candidate = Candidate::with('party')->where('id', $id)->first();
+        $election = Election::where('status', 'pending')
+                            ->orWhere('status', 'ongoing')
+                            ->orWhere('status', 'completed')
+                            ->orderBy('id', 'desc')
+                            ->first();
+        $parties = Party::orderBy('name', 'asc')
+                        ->get();
+        $candidate = Candidate::with('party')
+                              ->where('id', $id)
+                              ->first();
         if (is_null($candidate)) {
             return response(["candidate" => null]);
         }
         return response([
-            "election"  => $election,
+            "election" => $election,
             "candidate" => $candidate,
-            "parties"   => $parties
+            "parties" => $parties
         ]);
     }
 
@@ -346,7 +390,7 @@ class CandidateController extends Controller
     {
         return response([
             "completed" => false,
-            "err"       => $err
+            "err" => $err
         ]);
     }
 

@@ -41,10 +41,10 @@ class ElectionController extends Controller
                 $election->name = ucwords($request->name);
                 $election->start_date =
                     Carbon::createFromFormat('D M d Y H:i:s e+', $request->start_date)
-                          ->setTimezone('UTC');
+                        ->setTimezone('UTC');
                 $election->end_date =
                     Carbon::createFromFormat('D M d Y H:i:s e+', $request->end_date)
-                          ->setTimeZone('UTC');
+                        ->setTimeZone('UTC');
                 $election->created_by = $request->user()->id;
                 if ($election->start_date->lessThan(Carbon::now())) {
                     $election->status = 'ongoing';
@@ -63,7 +63,7 @@ class ElectionController extends Controller
         } catch (\Exception $e) {
             return response([
                 "completed" => false,
-                "message"   => $e->getMessage()
+                "message" => $e->getMessage()
             ]);
         }
     }
@@ -74,7 +74,7 @@ class ElectionController extends Controller
     private function electionExists()
     {
         $election = Election::where('status', 'pending')->orWhere('status', 'ongoing')
-                            ->orWhere('status', 'completed')->orderBy('id', 'desc')->first();
+            ->orWhere('status', 'completed')->orderBy('id', 'desc')->first();
         return $election !== null;
     }
 
@@ -85,7 +85,7 @@ class ElectionController extends Controller
     public function getElection(Request $request)
     {
         $election = Election::where('status', 'pending')->orWhere('status', 'ongoing')
-                            ->orWhere('status', 'completed')->orderBy('id', 'desc')->first();
+            ->orWhere('status', 'completed')->orderBy('id', 'desc')->first();
         $createdArray = null;
         $stringDates = null;
         if (!is_null($election)) {
@@ -93,21 +93,21 @@ class ElectionController extends Controller
             $election->start_date = Carbon::parse($election->start_date)->setTimezone("+01:00");
             $election->end_date = Carbon::parse($election->end_date)->setTimezone("+01:00");
             $createdArray = [
-                "name"  => $createdBy->name,
+                "name" => $createdBy->name,
                 "email" => $createdBy->email,
             ];
             $stringDates = [
                 "start_date" => Carbon::parse($election->start_date)->setTimeZone("+01:00")
-                                      ->toDayDateTimeString(),
-                "end_date"   => Carbon::parse($election->end_date)->setTimeZone("+01:00")
-                                      ->toDayDateTimeString()
+                    ->toDayDateTimeString(),
+                "end_date" => Carbon::parse($election->end_date)->setTimeZone("+01:00")
+                    ->toDayDateTimeString()
             ];
         }
         return response([
             "isSessionValid" => "true",
-            "election"       => $election,
-            "string_dates"   => $stringDates,
-            "created_by"     => $createdArray
+            "election" => $election,
+            "string_dates" => $stringDates,
+            "created_by" => $createdArray
         ]);
     }
 
@@ -117,20 +117,20 @@ class ElectionController extends Controller
     public function getCurrentElectionMinimalInfo()
     {
         $election = Election::where('status', 'pending')->orWhere('status', 'ongoing')
-                            ->orWhere('status', 'completed')->orderBy('id', 'desc')->first();
+            ->orWhere('status', 'completed')->orderBy('id', 'desc')->first();
         if (is_null($election)) {
             $electionArray = null;
         } else {
             $electionArray = [
                 "start_date" => Carbon::parse($election->start_date)->setTimeZone("+01:00")
-                                      ->toDayDateTimeString(),
-                "end_date"   => Carbon::parse($election->end_date)->setTimeZone("+01:00")
-                                      ->toDayDateTimeString(),
-                "status"     => $election->status,
+                    ->toDayDateTimeString(),
+                "end_date" => Carbon::parse($election->end_date)->setTimeZone("+01:00")
+                    ->toDayDateTimeString(),
+                "status" => $election->status,
             ];
         }
         return response([
-            "present"  => !is_null($election),
+            "present" => !is_null($election),
             "election" => $electionArray,
         ]);
     }
@@ -145,7 +145,7 @@ class ElectionController extends Controller
             return response(["exists" => false]);
         } else {
             $election = Election::where('status', 'pending')->orWhere('status', 'ongoing')
-                                ->orWhere('status', 'completed')->orderBy('id', 'desc')->first();
+                ->orWhere('status', 'completed')->orderBy('id', 'desc')->first();
             $election->delete();
             event(new ElectionDeleted($election));
             return response(["completed" => true]);
@@ -162,26 +162,26 @@ class ElectionController extends Controller
             if ($this->electionExists()) {
                 $election = Election::find($request->id);
                 if ($election->status === 'ongoing' && !Carbon::parse($election->start_date)
-                                                              ->equalTo(Carbon::createFromFormat('D M d Y H:i:s e+', $request->input('start_date'))
-                                                                              ->setTimezone("UTC"))) {
+                        ->equalTo(Carbon::createFromFormat('D M d Y H:i:s e+', $request->input('start_date'))
+                            ->setTimezone("UTC"))) {
                     return response([
                         "isValid" => false,
-                        "field"   => "electionAlreadyStarted"
+                        "field" => "electionAlreadyStarted"
                     ]);
                 } else {
                     if ($election->status === 'completed') {
                         return response([
                             "isValid" => false,
-                            "field"   => 'electionAlreadyComplete'
+                            "field" => 'electionAlreadyComplete'
                         ]);
                     } else {
                         $election->name = ucwords($request->name);
                         $election->start_date =
                             Carbon::createFromFormat('D M d Y H:i:s e+', $request->start_date)
-                                  ->setTimezone("UTC");
+                                ->setTimezone("UTC");
                         $election->end_date =
                             Carbon::createFromFormat('D M d Y H:i:s e+', $request->end_date)
-                                  ->setTimeZone("UTC");
+                                ->setTimeZone("UTC");
                         if ($election->start_date->lessThan(Carbon::now())) {
                             $election->status = 'ongoing';
                         } else {
@@ -199,7 +199,7 @@ class ElectionController extends Controller
         } catch (\Exception $e) {
             return response([
                 "completed" => false,
-                "message"   => $e->getMessage()
+                "message" => $e->getMessage()
             ]);
         }
     }
@@ -220,5 +220,11 @@ class ElectionController extends Controller
         } else {
             return response(["exists" => false]);
         }
+    }
+
+    public function getCurrentElection()
+    {
+        return Election::where('status', 'pending')->orWhere('status', 'ongoing')
+            ->orWhere('status', 'completed')->orderBy('id', 'desc')->first();
     }
 }
