@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\VotedSuccessfully;
 use App\Party;
 use App\User;
 use App\Vote;
@@ -71,7 +72,9 @@ class VoteController extends Controller
             $vote->party_id = $partyId;
             $vote->election_id = $election->id;
             $vote->lga_id = $user->lga_id;
+            $vote->state_id = $user->state_id;
             $vote->save();
+            event(new VotedSuccessfully($vote));
             return response(["completed" => true]);
         }
 

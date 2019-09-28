@@ -12,4 +12,9 @@ class Party extends Model
     {
         return $this->hasMany(\App\Candidate::class);
     }
+
+    public function votes()
+    {
+        return $this->hasMany(\App\Vote::class);
+    }
 }
