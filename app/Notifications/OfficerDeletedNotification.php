@@ -59,7 +59,7 @@ class OfficerDeletedNotification extends Notification
         return [
             "officer" => $this->officer,
             "message" => $notifiable->id === $this->officer->id ?
-                "You have been removed from the officer list" : "A new officer has been created",
+                "You have been removed from the officer list" : "An officer has been deleted",
             "icon"    => $this->officer->picture,
             "type"    => "officer_deleted"
         ];
