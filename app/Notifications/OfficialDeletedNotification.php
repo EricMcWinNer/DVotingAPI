@@ -59,7 +59,7 @@ class OfficialDeletedNotification extends Notification
         return [
             "official" => $this->official,
             "message"  => $notifiable->id === $this->official->id ? "You have been made an 
-            official" : "A new official has been created",
+            official" : "An official has been deleted",
             "icon"     => $this->official->picture,
             "type"     => "official_created"
         ];

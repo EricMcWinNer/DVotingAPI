@@ -2,26 +2,27 @@
 
 namespace App\Notifications;
 
-use App\User;
+use App\Vote;
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 
-class OfficerDeletedNotification extends Notification
+class VotedSuccessfullyNotification extends Notification
 {
     use Queueable;
 
-    public $officer;
+    public $vote;
 
     /**
      * Create a new notification instance.
      *
-     * @param User $officer
+     * @param Vote $vote
      */
-    public function __construct(User $officer)
+    public function __construct(Vote $vote)
     {
-        $this->officer = $officer;
+        $this->vote = $vote;
     }
 
     /**
@@ -43,9 +44,10 @@ class OfficerDeletedNotification extends Notification
      */
     public function toMail($notifiable)
     {
-        return (new MailMessage)->line('The introduction to the notification.')
-                                ->action('Notification Action', url('/'))
-                                ->line('Thank you for using our application!');
+        return (new MailMessage)
+            ->line('The introduction to the notification.')
+            ->action('Notification Action', url('/'))
+            ->line('Thank you for using our application!');
     }
 
     /**
@@ -57,11 +59,10 @@ class OfficerDeletedNotification extends Notification
     public function toArray($notifiable)
     {
         return [
-            "officer" => $this->officer,
-            "message" => $notifiable->id === $this->officer->id ?
-                "You have been removed from the officer list" : "An officer has been deleted",
-            "icon"    => $this->officer->picture,
-            "type"    => "officer_deleted"
+            "election" => $this->vote->election,
+            "message" => "You have voted successfully!",
+            "type" => "voted_successfully",
+            "voted_at" => Carbon::parse($this->vote->created_at)->format('Y-m-d H:i:s')
         ];
     }
 }

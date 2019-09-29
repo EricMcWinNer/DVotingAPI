@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\OfficerDeleted;
 use App\LocalGovernment;
 use App\OfficerRegister;
 use App\State;
@@ -175,7 +176,7 @@ class OfficerController extends Controller
             !UserHelper::isOfficer($officer)) return response(["completed" => false]);
         $user = UserHelper::makeVoter($officer);
         $user->save();
-        /*event(new OfficerDeleted($user));*/
+        event(new OfficerDeleted($user));
         return response(["completed" => true]);
     }
 

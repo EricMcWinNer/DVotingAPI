@@ -380,3 +380,26 @@ Route::prefix('/dashboard/vote')
 
      });
 
+Route::prefix('/dashboard/results')
+     ->group(function () {
+
+         Route::middleware(['auth.web'])
+              ->group(function () {
+
+                  Route::get('/', 'ResultController@getResults');
+
+                  Route::get('/pie/{number}', 'ResultController@getPieChartData')
+                       ->where('number', '[0-9]+');
+
+                  Route::get('/bar', 'ResultController@getBarChartData');
+
+                  Route::get('/getvotes', 'ResultController@getPartiesVotes');
+
+                  Route::get('/getvotes/bystate/{stateId}', 'ResultController@getVotesByState')
+                       ->where('stateId', '[0-9]+');
+
+                  Route::get('/getvotes/bylga/{lgaId}', 'ResultController@getVotesByLGA')
+                       ->where('lgaId', '[0-9]+');
+              });
+
+     });

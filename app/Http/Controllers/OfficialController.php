@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Event\OfficialDeleted;
+use App\Events\OfficialDeleted;
 use App\Events\OfficialCreated;
 use App\LocalGovernment;
 use App\State;
