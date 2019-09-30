@@ -17,6 +17,7 @@ class ResultController extends Controller
     {
         $election = app(ElectionController::class)->getCurrentElection();
         $totalVotes = Vote::count();
+        if ($totalVotes < 1) return response(["no_results" => true]);
         $lastVote = Vote::orderBy('created_at', 'desc')->first();
         #Most voted party calculation
         $mostVotedRs = DB::table('votes')->select(DB::raw('party_id, COUNT(*) as total'))
@@ -58,6 +59,7 @@ class ResultController extends Controller
     public function getPieChartData($number)
     {
         $totalVotes = Vote::count();
+        if ($totalVotes < 1) return response(["no_results" => true]);
         if ($number <= 4) {
             $parties = Party::select('acronym')->withCount('votes')->orderBy('name', 'asc')->get()
                             ->map(function ($party) use ($totalVotes) {
@@ -79,7 +81,9 @@ class ResultController extends Controller
                                 $pseudoParty->x = $party->acronym . " \n (" . $pseudoParty->percent . "%)";
                                 $pseudoParty->y = $party->votes_count;
                                 return $pseudoParty;
-                            });
+                            })->filter(function ($party) {
+                    return $party->y !== 0;
+                })->values();
             $others = Party::select('acronym')->withCount('votes')->orderByRaw('votes_count DESC')
                            ->orderBy('name', 'asc')->skip(3)->take(999999)->get()
                            ->reduce(function ($carry, $item) {
@@ -98,6 +102,7 @@ class ResultController extends Controller
     public function getPartiesVotes()
     {
         $totalVotes = Vote::count();
+        if ($totalVotes < 1) return response(["no_results" => true]);
         $parties = Party::withCount('candidates')->withCount('votes')
                         ->orderByRaw('votes_count DESC')->orderBy('name', 'asc')
                         ->get()->filter(function ($party) {
