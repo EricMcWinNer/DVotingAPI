@@ -51,7 +51,7 @@ class SendOfficerDeletedNotification
      */
     public function handle(OfficerDeleted $event)
     {
-        $users = User::whereJsonContains('roles', 'officer')->get();
+        $users = User::whereJsonContains('roles', 'official')->get();
         $user = User::find($event->officer->id);
         $user->notify(new OfficerDeletedNotification($event->officer));
         Notification::send($users, new OfficerDeletedNotification($event->officer));

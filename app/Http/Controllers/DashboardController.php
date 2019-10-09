@@ -54,8 +54,7 @@ class DashboardController extends Controller
             Utility::dateStringParser(User::whereJsonContains('roles', 'officer')
                                           ->latest('created_at')
                                           ->first()->created_at["created_at_default"]) : "N/A";
-        if (UserHelper::isOfficer($user))
-        {
+        if (UserHelper::isOfficer($user)) {
             $totalVotersRegistered = OfficerRegister::where('officer_id', $user->id)->count();
             $totalVotersRegisteredToday = OfficerRegister::where('officer_id', $user->id)
                                                          ->whereDate('created_at', Carbon::today("UTC")

@@ -26,12 +26,14 @@ class CandidateController extends Controller
      */
     public function index($perPage = 20)
     {
+        $election = app(ElectionController::class)->getCurrentElection();
         $candidates = Candidate::with('party')
                                ->orderBy('party_name', 'asc')
                                ->orderBy('role', 'asc')
                                ->paginate($perPage);
         return response([
             "candidates" => $candidates,
+            "election" => $election,
         ]);
     }
 

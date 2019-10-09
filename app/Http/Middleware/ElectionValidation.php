@@ -5,6 +5,8 @@ namespace App\Http\Middleware;
 use Carbon\Carbon;
 use Carbon\Exceptions\InvalidDateException;
 use Closure;
+use Illuminate\Support\Facades\Route;
+
 
 class ElectionValidation
 {
@@ -18,6 +20,7 @@ class ElectionValidation
     public function handle($request, Closure $next)
     {
         try {
+            $routeName = Route::currentRouteName();
             $electionName = $request->input('name');
             $startDate = Carbon::createFromFormat('D M d Y H:i:s e+', $request->input('start_date'))->setTimezone("UTC");
             $endDate = Carbon::createFromFormat('D M d Y H:i:s e+', $request->input('end_date'))->setTimeZone("UTC");
@@ -27,7 +30,7 @@ class ElectionValidation
                 return response(["isValid" => false, "field" => "startDate"]);
             else if (empty($request->end_date))
                 return response(["isValid" => false, "field" => "endDate"]);
-            else if ($startDate->setTimezone("+01:00")->lessThan(Carbon::now("+01:00")->addHour()))
+            else if ($startDate->setTimezone("+01:00")->lessThan(Carbon::now("+01:00")->addHour()) && $routeName !== "edit_election")
                 return response(["isValid" => false, "field" => "smallStartDate"]);
             /*else if ((int)$startDate->format('i') !== 0 && (int)$startDate->format('i') % 10 !== 0)
                 return response(["isValid" => false, "field" => "startDateNotTens"]);

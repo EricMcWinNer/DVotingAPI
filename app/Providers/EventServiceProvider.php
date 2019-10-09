@@ -61,6 +61,10 @@ class EventServiceProvider extends ServiceProvider
         ],
         'App\Events\VotedSuccessfully' => [
             'App\Listeners\SendSuccessfullyVotedNotification'
+        ],
+        'App\Events\GenerateRegistrationPins' => [
+            'App\Listeners\GeneratePins',
+            'App\Listeners\SendPinGeneratedSucessfullyNotification'
         ]
     ];
 

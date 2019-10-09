@@ -2,14 +2,12 @@
 
 namespace App\Listeners;
 
-use App\Events\OfficerCreated;
-use App\Notifications\OfficerCreatedNotification;
-use App\User;
+use App\Events\GenerateRegistrationPins;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Support\Facades\Notification;
+use App\Notifications\PinGeneratedSuccessfullyNotification;
 
-class SendOfficerCreatedNotification implements ShouldQueue
+class SendPinGeneratedSucessfullyNotification implements ShouldQueue
 {
     /**
      * The name of the connection the job should be sent to
@@ -23,7 +21,7 @@ class SendOfficerCreatedNotification implements ShouldQueue
      *
      * @var string|null
      */
-    public $queue = 'listeners';
+    public $queue = 'election_listeners';
 
     /**
      *  The time (seconds) before the job should be processed.
@@ -32,6 +30,13 @@ class SendOfficerCreatedNotification implements ShouldQueue
      */
     public $delay = 5;
 
+
+    /**
+     * The time (seconds) during which the job would be processed
+     *
+     * @var int
+     */
+    public $timeout = 1000;
 
     /**
      * Create the event listener.
@@ -46,14 +51,12 @@ class SendOfficerCreatedNotification implements ShouldQueue
     /**
      * Handle the event.
      *
-     * @param  OfficerCreated  $event
+     * @param  GenerateRegistrationPins  $event
      * @return void
      */
-    public function handle(OfficerCreated $event)
+    public function handle(GenerateRegistrationPins $event)
     {
-        $users = User::whereJsonContains('roles', 'official')->get();
-        $user = User::find($event->officer->id);
-        $user->notify(new OfficerCreatedNotification($event->officer));
-        Notification::send($users, new OfficerCreatedNotification($event->officer));
+        $user = $event->user;
+        $user->notify(new PinGeneratedSuccessfullyNotification($event->election));
     }
 }

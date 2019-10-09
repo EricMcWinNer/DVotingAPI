@@ -39,7 +39,7 @@ class AuthenticationController extends Controller
                     $token->addClaim(new Expiration(new \DateTime('1 day')));
                     $cookie = $jwt->serialize($token, $encryption);
                     $time = time() + 60 * 60 * 24;
-                    return response(["isValid" => "true"])->cookie('jwt', $cookie, $time, "/", null, null, true);
+                    return response(["isValid" => true])->cookie('jwt', $cookie, $time, "/", null, null, true);
                 } else {
                     return $this->basicAuth($credentials);
                 }
@@ -56,11 +56,9 @@ class AuthenticationController extends Controller
     {
         Log::debug($credentials);
         if (Auth::once($credentials)) {
-            Log::debug("yieep");
             $serializedToken = $this->generateJwt(Auth::user());
-            Log::debug($serializedToken);
             $time = time() + 60 * 60 * 24;
-            return response(["isValid" => "true"])->cookie('jwt', $serializedToken, $time, "/", null, null, true);
+            return response(["isValid" => true])->cookie('jwt', $serializedToken, $time, "/", null, null, true);
         } else {
             return response([
                 "status" => "error",
@@ -87,23 +85,23 @@ class AuthenticationController extends Controller
                     $token->addClaim(new Expiration(new \DateTime('1 day')));
                     $cookie = $jwt->serialize($token, $encryption);
                     $time = time() + 60 * 60 * 24;
-                    return response(["isSessionValid" => "true"])->cookie('jwt', $cookie, $time, "/", null, null, true);
+                    return response(["isSessionValid" => true])->cookie('jwt', $cookie, $time, "/", null, null, true);
                 } else {
-                    return response(["isSessionValid" => "false"]);
+                    return response(["isSessionValid" => false]);
                 }
             } catch (VerificationException $e) {
                 Log::debug($e->getMessage());
-                return response(["isSessionValid" => "false"]);
+                return response(["isSessionValid" => false]);
             }
         } else {
-            return response(["isSessionValid" => "false"]);
+            return response(["isSessionValid" => false]);
         }
     }
 
     public function logoutWebApp()
     {
         Auth::logout();
-        return response(["success" => "true"])->cookie(Cookie::forget("jwt"));
+        return response(["success" => true])->cookie(Cookie::forget("jwt"));
     }
 
     public function generateJwt(User $user): string

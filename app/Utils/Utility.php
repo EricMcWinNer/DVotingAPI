@@ -43,8 +43,7 @@ class Utility
     {
         $fileSystem = new Filesystem();
         $files = Storage::disk('public')->files();
-        for ($i = 0; $i < count($files); $i++)
-        {
+        for ($i = 0; $i < count($files); $i++) {
             Storage::disk('public')->move($files[$i], "profile-picture/" . ($i + 1) . ".jpg");
         }
         /*$renamedFiles = Storage::disk('public')->files('profile-picture');*/
@@ -60,14 +59,11 @@ class Utility
         if (is_null($string) || $string == "null") return false;
         $data = explode(",", $string)[1];
         $type = explode(":", explode(";", $string)[0])[1];
-        if (base64_encode(base64_decode($data, true)) === $data)
-        {
+        if (base64_encode(base64_decode($data, true)) === $data) {
             if ($type != "image/jpeg") return false;
             else
                 return true;
-        }
-        else
-        {
+        } else {
             return false;
         }
     }
@@ -77,5 +73,13 @@ class Utility
         return explode(",", $string)[1];
     }
 
-
+    public static function roundEverythingUp($float)
+    {
+        $type = gettype($float);
+        if ($type === "double" || $type === "float") {
+            return floor($float) + 1;
+        } else {
+            return $float;
+        }
+    }
 }

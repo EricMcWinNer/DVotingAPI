@@ -30,12 +30,19 @@ class UserController extends Controller
         try {
             $fields = json_decode($request->userInfo, true);
             $URI = $request->path();
+            $election = app(ElectionController::class)->getCurrentElection();
             $fields = array_map(function ($value)
             {
                 return trim($value);
             }, $fields);
             $registrationPin =
                 RegistrationPin::where('content', $fields['confirmationPin'])->first();
+            if(!is_null($election) && $election->status === "ongoing") {
+                return response([
+                    "isValid" => false,
+                    "field" => "ongoingElection"
+                ]);
+            }
             if (strpos($URI, "official") !== false) {
                 $validity = RegistrationPinHelper::validateOfficialPin($registrationPin);
                 if ($validity === false) {

@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+$election = app(ElectionController::class)->getCurrentElection();
 
 class OfficerVoterController extends Controller
 {
@@ -18,6 +19,7 @@ class OfficerVoterController extends Controller
         try
         {
             $officer = $request->user();
+            $election = app(ElectionController::class)->getCurrentElection();
             $fields = json_decode($request->userInfo, true);
             $fields = array_map(function ($value)
             {
@@ -28,6 +30,12 @@ class OfficerVoterController extends Controller
             $fields["otherNames"] = ucwords($fields["otherNames"]);
             $fields["maritalStatus"] = UserHelper::MARITALSTATUSES[(int)$fields["maritalStatus"]];
             $profilePicture = null;
+            if(!is_null($election) && $election->status === "ongoing") {
+                return response([
+                    "isValid" => false,
+                    "field" => "ongoingElection"
+                ]);
+            }
             if ($request->hasFile('picture')) $profilePicture =
                 $request->file('picture')->store('profile-picture', 'public');
             else

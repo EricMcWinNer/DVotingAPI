@@ -44,14 +44,14 @@ class AuthenticateOnce
                     $response = $next($request);
                     return $response->cookie('jwt', $cookie, $time, "/");
                 } else {
-                    return response(["isSessionValid" => "false"]);
+                    return response(["isSessionValid" => false]);
                 }
             } catch (VerificationException $e) {
                 Log::debug($e->getMessage());
-                return response(["isSessionValid" => "false"]);
+                return response(["isSessionValid" => false]);
             }
         } else {
-            return response(["isSessionValid" => "false"]);
+            return response(["isSessionValid" => false]);
         }
     }
 }
