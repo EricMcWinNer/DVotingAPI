@@ -104,7 +104,7 @@ class OfficialController extends Controller
     public function filterEligibleOfficialsByLGA($id, $perPage = 20)
     {
         $officials = User::with('lga.state')->whereJsonDoesntContain("roles", "candidate")
-                         ->whereJsonDoesntContain("roles", "officer")->where("state_id", $id)->orderBy('name', 'asc')
+                         ->whereJsonDoesntContain("roles", "officer")->where("lga_id", $id)->orderBy('name', 'asc')
                          ->paginate($perPage);
         return response(["users" => $officials]);
     }

@@ -30,7 +30,7 @@ class VoteController extends Controller
                 $query->where('election_id', $election->id)
                       ->orderBy('role', 'asc');
             }])
-                            ->orderBy('name', 'asc')
+                            ->orderBy('acronym', 'asc')
                             ->get();
             $parties = $parties->filter(function ($party) {
                 return count($party->candidates) > 1;

@@ -213,6 +213,8 @@ class ElectionController extends Controller
         if ($this->electionExists()) {
             $currentElection =
                 Election::where('status', 'completed')->orderBy('id', 'desc')->first();
+            if(Carbon::parse($currentElection->end_date)->addHours(24)->lessThan(Carbon::now()))
+                return response(["error" => "tooEarly"]);
             $currentElection->status = 'finalized';
             $currentElection->save();
             event(new ElectionFinalized($currentElection));

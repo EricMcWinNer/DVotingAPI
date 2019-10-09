@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\RegistrationPin;
 use Illuminate\Http\Request;
+use App\Events\GenerateRegistrationPins;
 
 /**
  * Class RegistrationPinController
@@ -18,8 +19,7 @@ class RegistrationPinController extends Controller
     public function index($perPage = 20)
     {
         $pins = null;
-        switch ($_GET["type"])
-        {
+        switch ($_GET["type"]) {
             case "official":
                 if ($_GET["status"] === "unused") $pins =
                     RegistrationPin::with('createdBy:id,name,email')->whereNull("date_used")
@@ -60,27 +60,30 @@ class RegistrationPinController extends Controller
     public function makeOfficerPins(Request $request, $count)
     {
         $successes = 0;
-        while ($successes < $count)
-        {
-            try
-            {
-                $content = random_int(111111111111, 999999999999);
-                $pin = new RegistrationPin;
-                $pin->content = $content;
-                $pin->user_type = "officer";
-                $pin->created_by = $request->user()->id;
-                $pin->save();
-                $successes += 1;
-            } catch (\Illuminate\Database\QueryException $e)
-            {
-                $errorCode = $e->errorInfo[1];
-                if ($errorCode != 1062)
-                {
-                    return response(["exception" => $e->getMessage()]);
+        if ($count <= 20) {
+            while ($successes < $count) {
+                try {
+                    $content = random_int(111111111111, 999999999999);
+                    $pin = new RegistrationPin;
+                    $pin->content = $content;
+                    $pin->user_type = "officer";
+                    $pin->created_by = $request->user()->id;
+                    $pin->save();
+                    $successes += 1;
+                } catch (\Illuminate\Database\QueryException $e) {
+                    $errorCode = $e->errorInfo[1];
+                    if ($errorCode != 1062) {
+                        return response(["exception" => $e->getMessage()]);
+                    }
                 }
             }
+            return response(["completed" => true]);
+        } else {
+            $election = app(ElectionController::class)->getCurrentElection();
+            event(new GenerateRegistrationPins("officer", $count, $request->user(), $election));
+            return response(["backgroundCompleted" => true]);
         }
-        return response(["completed" => true]);
+
     }
 
     /**
@@ -92,26 +95,28 @@ class RegistrationPinController extends Controller
     public function makeOfficialPins(Request $request, $count)
     {
         $successes = 0;
-        while ($successes < $count)
-        {
-            try
-            {
-                $content = random_int(111111111111, 999999999999);
-                $pin = new RegistrationPin;
-                $pin->content = $content;
-                $pin->user_type = "official";
-                $pin->created_by = $request->user()->id;
-                $pin->save();
-                $successes += 1;
-            } catch (\Illuminate\Database\QueryException $e)
-            {
-                $errorCode = $e->errorInfo[1];
-                if ($errorCode != 1062)
-                {
-                    return response(["exception" => $e->getMessage()]);
+        if ($count <= 20) {
+            while ($successes < $count) {
+                try {
+                    $content = random_int(111111111111, 999999999999);
+                    $pin = new RegistrationPin;
+                    $pin->content = $content;
+                    $pin->user_type = "official";
+                    $pin->created_by = $request->user()->id;
+                    $pin->save();
+                    $successes += 1;
+                } catch (\Illuminate\Database\QueryException $e) {
+                    $errorCode = $e->errorInfo[1];
+                    if ($errorCode != 1062) {
+                        return response(["exception" => $e->getMessage()]);
+                    }
                 }
             }
+            return response(["completed" => true]);
+        } else {
+            $election = app(ElectionController::class)->getCurrentElection();
+            event(new GenerateRegistrationPins("official", $count, $request->user(), $election));
+            return response(["backgroundCompleted" => true]);
         }
-        return response(["completed" => true]);
     }
 }

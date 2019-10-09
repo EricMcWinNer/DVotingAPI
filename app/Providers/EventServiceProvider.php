@@ -52,7 +52,6 @@ class EventServiceProvider extends ServiceProvider
             'App\Listeners\SendElectionUpdatedNotification'
         ],
         'App\Events\ElectionFinalized' => [
-            'App\Listeners\StoreResults',
             'App\Listeners\CleanUpElection',
             'App\Listeners\SendElectionFinalizedNotification',
         ],
@@ -62,6 +61,10 @@ class EventServiceProvider extends ServiceProvider
         ],
         'App\Events\VotedSuccessfully' => [
             'App\Listeners\SendSuccessfullyVotedNotification'
+        ],
+        'App\Events\GenerateRegistrationPins' => [
+            'App\Listeners\GeneratePins',
+            'App\Listeners\SendPinGeneratedSucessfullyNotification'
         ]
     ];
 
