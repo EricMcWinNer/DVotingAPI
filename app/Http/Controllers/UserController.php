@@ -102,6 +102,10 @@ class UserController extends Controller
             $user->occupation = $fields['occupation'];
             $user->marital_status = $fields['maritalStatus'];
             $user->phone_number = $fields['phoneNumber'];
+            $user->left_index = $fields['leftIndex'];
+            $user->left_thumb = $fields['leftThumb'];
+            $user->right_index = $fields['rightIndex'];
+            $user->right_thumb = $fields['rightThumb'];
             if (strpos($URI, "official") !== false) {
                 $user = UserHelper::makeOfficial($user);
             } else {
