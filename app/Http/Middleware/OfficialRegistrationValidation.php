@@ -73,30 +73,22 @@ class OfficialRegistrationValidation
             "isValid" => false,
             "field"   => "address1"
         ]);
-        else if (empty($fields["address2"])) return response([
-            "isValid" => false,
-            "field"   => "address2"
-        ]);
         else if ($fields["password"] != $fields["confirmPassword"]) return response([
             "isValid" => false,
             "field"   => "password"
         ]);
-        else if (!$request->hasFile('picture'))
-        {
+        else if (!$request->hasFile('picture')) {
             if (Utility::validateWebCamBase64($request->picture)) return $next($request);
             else return response([
                 "isValid" => false,
                 "field"   => $request->picture
             ]);
-        }
-        else if (!$request->file('picture')->isValid())
-        {
+        } else if (!$request->file('picture')->isValid()) {
             return response([
                 "isValid" => false,
                 "field"   => "Profile picture"
             ]);
-        }
-        else if (!substr($request->file('picture')->getMimeType(), 0, 5) == 'image') return response([
+        } else if (!substr($request->file('picture')->getMimeType(), 0, 5) == 'image') return response([
             "isValid" => false,
             "field"   => "Profile picture"
         ]);
@@ -104,6 +96,26 @@ class OfficialRegistrationValidation
             "isValid" => false,
             "field"   => "tooYoung"
         ]);
+        else if (!(!empty($fields["leftIndex"]) && !is_null($fields["leftIndex"]) && Utility::validateBase64($fields["leftIndex"])))
+            return response([
+                "isValid" => false,
+                "field"   => "left index fingerprint"
+            ]);
+        else if (!(!empty($fields["leftThumb"]) && !is_null($fields["leftThumb"]) && Utility::validateBase64($fields["leftThumb"])))
+            return response([
+                "isValid" => false,
+                "field"   => "left thumb fingerprint"
+            ]);
+        else if (!(!empty($fields["rightIndex"]) && !is_null($fields["rightIndex"]) && Utility::validateBase64($fields["rightIndex"])))
+            return response([
+                "isValid" => false,
+                "field"   => "right index fingerprint"
+            ]);
+        else if (!(!empty($fields["rightThumb"]) && !is_null($fields["rightThumb"]) && Utility::validateBase64($fields["rightThumb"])))
+            return response([
+                "isValid" => false,
+                "field"   => "right thumb fingerprint"
+            ]);
         else
             return $next($request);
     }

@@ -68,6 +68,12 @@ class Utility
         }
     }
 
+    public static function validateBase64($data)
+    : bool
+    {
+        return base64_encode(base64_decode($data, true)) === $data;
+    }
+
     public static function extractDataFromWebCamBase64($string)
     {
         return explode(",", $string)[1];

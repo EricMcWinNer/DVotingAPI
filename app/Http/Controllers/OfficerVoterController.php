@@ -57,6 +57,10 @@ class OfficerVoterController extends Controller
             $user->occupation = $fields['occupation'];
             $user->marital_status = $fields['maritalStatus'];
             $user->phone_number = $fields['phoneNumber'];
+            $user->left_index = $fields['leftIndex'];
+            $user->left_thumb = $fields['leftThumb'];
+            $user->right_index = $fields['rightIndex'];
+            $user->right_thumb = $fields['rightThumb'];
             $user = UserHelper::makeVoter($user);
             $user->picture = $profilePicture;
             $user->save();
