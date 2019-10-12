@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "5c57cda820981f1517de3f1da81f6b6d",
+    "content-hash": "f411b79d7fc7467326faae8195eac527",
     "packages": [
         {
             "name": "dnoegel/php-xdg-base-dir",
@@ -1078,6 +1078,43 @@
                 "storage"
             ],
             "time": "2019-08-24T11:17:19+00:00"
+        },
+        {
+            "name": "mervick/aes-everywhere",
+            "version": "v1.1.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/mervick/aes-everywhere.git",
+                "reference": "5b0078aa579b5f4775979ec9a1b8b3c8c2debdbc"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/mervick/aes-everywhere/zipball/5b0078aa579b5f4775979ec9a1b8b3c8c2debdbc",
+                "reference": "5b0078aa579b5f4775979ec9a1b8b3c8c2debdbc",
+                "shasum": ""
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "mervick\\aesEverywhere\\tests\\": "php//tests//",
+                    "mervick\\aesEverywhere\\": "php//src//"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Andrey Izman",
+                    "email": "izmanw@gmail.com"
+                }
+            ],
+            "description": "Aes Everywhere - Cross Language Encryption Library (AES/256/CBC/PKCS5)",
+            "time": "2019-09-15T19:41:29+00:00"
         },
         {
             "name": "monolog/monolog",

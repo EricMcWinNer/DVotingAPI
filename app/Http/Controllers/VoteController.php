@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Events\VotedSuccessfully;
 use App\Party;
 use App\User;
+use App\Utils\Utility;
 use App\Vote;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -12,10 +13,14 @@ use Illuminate\Support\Facades\Hash;
 
 class VoteController extends Controller
 {
-    private function voted(User $user): bool
+    private function voted(User $user)
+    : bool
     {
         $election = app(ElectionController::class)->getCurrentElection();
-        return Vote::where([['user_id', $user->id], ['election_id', $election->id]])
+        return Vote::where([['user_id',
+                             $user->id],
+                            ['election_id',
+                             $election->id]])
                    ->count() == 1;
     }
 
@@ -36,9 +41,13 @@ class VoteController extends Controller
                 return count($party->candidates) > 1;
             })
                                ->values();
-            $voted = Vote::where([['user_id', $user->id], ['election_id', $election->id]])
+            $voted = Vote::where([['user_id',
+                                   $user->id],
+                                  ['election_id',
+                                   $election->id]])
                          ->count();
-            return response(["parties" => $parties, "voted" => $voted == 1]);
+            return response(["parties" => $parties,
+                             "voted"   => $voted == 1]);
         }
     }
 
@@ -52,13 +61,17 @@ class VoteController extends Controller
     {
         $voted = $this->voted($request->user());
         $party = Party::find($id);
-        return response(["voted" => $voted, "party" => $party]);
+        return response(["voted" => $voted,
+                         "party" => $party]);
     }
 
     public function vote(Request $request, $partyId)
     {
         $user = $request->user();
         $election = app(ElectionController::class)->getCurrentElection();
+        $scannedFingerprint = urldecode($request->fingerprint);
+        if (empty($scannedFingerprint)) return response(["fingerprint" => "wrong"]);
+        if (!Utility::validateBase64($scannedFingerprint)) return response(["fingerprint" => "wrong"]);
         $hashedPassword = DB::table('users')
                             ->select('password')
                             ->where('id', $user->id)
@@ -78,5 +91,18 @@ class VoteController extends Controller
             return response(["completed" => true]);
         }
 
+    }
+
+    public function getPrints(Request $request)
+    {
+        $election = app(ElectionController::class)->getCurrentElection();
+        if ($election->status !== "ongoing") return response(["prints" => null]);
+        $user = $request->user();
+        return response([
+            "left_index"  => $user->left_index,
+            "left_thumb"  => $user->left_thumb,
+            "right_index" => $user->right_index,
+            "right_thumb" => $user->right_thumb
+        ]);
     }
 }
