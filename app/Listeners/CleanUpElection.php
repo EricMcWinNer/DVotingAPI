@@ -67,6 +67,6 @@ class CleanUpElection implements ShouldQueue
             $user->save();
         }
         Candidate::where('election_id', $election->id)->delete();
-        Vote::delete();
+        Vote::where('election_id', $election->id)->delete();
     }
 }

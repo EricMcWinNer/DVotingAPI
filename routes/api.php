@@ -106,7 +106,7 @@ Route::prefix('/misc')
    
         Route::prefix('/dashboard/election')
                 ->group(function () {
-                    Route::middleware(['auth.web', 'throttle:60,1'])
+                    Route::middleware(['auth.web'])
                     ->group(function () {
                         Route::get('/', 'ElectionController@getElection');
 
@@ -352,6 +352,8 @@ Route::prefix('/misc')
                     Route::get('/check', 'VoteController@checkIfVoted');
 
                     Route::get('/{id}/forward', 'VoteController@forward')->where('id', '[0-9]+');
+
+                    Route::get('/prints', 'VoteController@getPrints');
                 });
             });
 
