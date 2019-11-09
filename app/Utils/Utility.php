@@ -71,7 +71,7 @@ class Utility
     public static function validateFingerprintBase64($string)
     : bool
     {
-        if (substr($string, -3, 4) !== "AAAA") return false;
+        if (substr($string, -4) !== "AAAA") return false;
         return base64_encode(base64_decode($string, true)) === $string;
     }
 

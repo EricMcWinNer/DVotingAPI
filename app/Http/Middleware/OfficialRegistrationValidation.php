@@ -45,6 +45,10 @@ class OfficialRegistrationValidation
             "isValid" => false,
             "field"   => "marital status"
         ]);
+        else if (!preg_match('/^([0-9]{11,11})$/', $fields['nin'])) return response([
+            "isValid" => false,
+            "field"   => "invalidNIN"
+        ]);
         else if (!filter_var($email, FILTER_VALIDATE_EMAIL)) return response([
             "isValid" => false,
             "field"   => "email"
