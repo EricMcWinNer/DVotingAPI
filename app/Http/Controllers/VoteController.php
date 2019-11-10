@@ -71,7 +71,7 @@ class VoteController extends Controller
         $election = app(ElectionController::class)->getCurrentElection();
         $scannedFingerprint = urldecode($request->fingerprint);
         if (empty($scannedFingerprint)) return response(["fingerprint" => "wrong"]);
-        if (!Utility::validateBase64($scannedFingerprint)) return response(["fingerprint" => "wrong"]);
+        if (!Utility::validateFingerprintBase64($scannedFingerprint)) return response(["fingerprint" => "wroong"]);
         $hashedPassword = DB::table('users')
                             ->select('password')
                             ->where('id', $user->id)

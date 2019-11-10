@@ -100,6 +100,7 @@ class UserController extends Controller
             $user->dob = Carbon::parse($fields['dob']);
             $user->gender = $fields['gender'];
             $user->occupation = $fields['occupation'];
+            $user->nin = $fields['nin'];
             $user->marital_status = $fields['maritalStatus'];
             $user->phone_number = $fields['phoneNumber'];
             $user->left_index = $fields['leftIndex'];

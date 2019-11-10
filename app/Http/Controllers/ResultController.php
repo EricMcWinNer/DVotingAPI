@@ -218,6 +218,7 @@ class ResultController extends Controller
         } else {
             $differenceInDays = $now->diffInDays(Carbon::parse($electionStartDay->toDateString()));
         }
+        $differenceInDays = $differenceInDays > 7 ? 7 : $differenceInDays;
         $data = [];
         if ($differenceInDays <= 1)
             if ($now->format('j') !== $electionStartDay->format('j')) {

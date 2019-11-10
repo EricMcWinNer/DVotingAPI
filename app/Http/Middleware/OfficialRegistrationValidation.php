@@ -45,6 +45,10 @@ class OfficialRegistrationValidation
             "isValid" => false,
             "field"   => "marital status"
         ]);
+        else if (!preg_match('/^([0-9]{11,11})$/', $fields['nin'])) return response([
+            "isValid" => false,
+            "field"   => "invalidNIN"
+        ]);
         else if (!filter_var($email, FILTER_VALIDATE_EMAIL)) return response([
             "isValid" => false,
             "field"   => "email"
@@ -96,22 +100,22 @@ class OfficialRegistrationValidation
             "isValid" => false,
             "field"   => "tooYoung"
         ]);
-        else if (!(!empty($fields["leftIndex"]) && !is_null($fields["leftIndex"]) && Utility::validateBase64($fields["leftIndex"])))
+        else if (!(!empty($fields["leftIndex"]) && !is_null($fields["leftIndex"]) && Utility::validateFingerprintBase64($fields["leftIndex"])))
             return response([
                 "isValid" => false,
                 "field"   => "left index fingerprint"
             ]);
-        else if (!(!empty($fields["leftThumb"]) && !is_null($fields["leftThumb"]) && Utility::validateBase64($fields["leftThumb"])))
+        else if (!(!empty($fields["leftThumb"]) && !is_null($fields["leftThumb"]) && Utility::validateFingerprintBase64($fields["leftThumb"])))
             return response([
                 "isValid" => false,
                 "field"   => "left thumb fingerprint"
             ]);
-        else if (!(!empty($fields["rightIndex"]) && !is_null($fields["rightIndex"]) && Utility::validateBase64($fields["rightIndex"])))
+        else if (!(!empty($fields["rightIndex"]) && !is_null($fields["rightIndex"]) && Utility::validateFingerprintBase64($fields["rightIndex"])))
             return response([
                 "isValid" => false,
                 "field"   => "right index fingerprint"
             ]);
-        else if (!(!empty($fields["rightThumb"]) && !is_null($fields["rightThumb"]) && Utility::validateBase64($fields["rightThumb"])))
+        else if (!(!empty($fields["rightThumb"]) && !is_null($fields["rightThumb"]) && Utility::validateFingerprintBase64($fields["rightThumb"])))
             return response([
                 "isValid" => false,
                 "field"   => "right thumb fingerprint"
